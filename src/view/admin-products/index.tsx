@@ -492,7 +492,8 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const flavorsForRecheio = allFlavors.filter((f) => f.type !== "cobertura");
+  const flavorsForRecheio   = allFlavors.filter((f) => f.type !== "cobertura");
+  const flavorsForCobertura = allFlavors.filter((f) => f.type !== "recheio");
 
   function openCreate() {
     setForm(emptyProduct());
@@ -535,6 +536,15 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
     }));
   }
 
+  function toggleToppingId(id: string) {
+    setForm((f) => ({
+      ...f,
+      topping_ids: f.topping_ids.includes(id)
+        ? f.topping_ids.filter((tid) => tid !== id)
+        : [...f.topping_ids, id],
+    }));
+  }
+
   function toggleDecoStyleId(id: string) {
     setForm((f) => ({
       ...f,
@@ -568,11 +578,11 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
       const savedFlavors = allFlavors.filter(
         (f) => form.flavor_ids.includes(f.id) && f.type !== "cobertura",
       );
+      const savedToppings = allFlavors.filter(
+        (f) => form.topping_ids.includes(f.id) && f.type !== "recheio",
+      );
       const savedDecos = allDecoStyles.filter((d) =>
         form.decoration_style_ids.includes(d.id),
-      );
-      const activeCoberturas = allFlavors.filter(
-        (f) => f.type !== "recheio" && f.is_active,
       );
       const builtSizes = parsedSizes.map((s, i) => ({
         id:         s.id ?? `tmp-${i}`,
@@ -599,7 +609,7 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
         created_at:         products.find((p) => p.id === form.id)?.created_at ?? new Date().toISOString(),
         sizes:              builtSizes,
         allowed_flavors:    savedFlavors,
-        allowed_toppings:   form.max_toppings > 0 ? activeCoberturas : [],
+        allowed_toppings:   savedToppings,
         allowed_decoration_styles: savedDecos,
       };
 
@@ -809,15 +819,19 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
                 </CheckGrid>
               </SectionDivider>
 
-              {/* Coberturas — gerenciadas globalmente */}
+              {/* Coberturas (creme) permitidas */}
               {form.max_toppings > 0 && (
                 <SectionDivider>
-                  <SectionLabel>Coberturas / Creme</SectionLabel>
-                  <InfoNote>
-                    Todas as coberturas ativas cadastradas em <strong>Sabores &amp; Recheios</strong> aparecem
-                    automaticamente para este produto. Para adicionar ou remover uma cobertura, vá até a página
-                    de sabores e ative ou desative o item desejado.
-                  </InfoNote>
+                  <SectionLabel>Coberturas / Creme ({form.topping_ids.length} selecionado{form.topping_ids.length !== 1 ? "s" : ""})</SectionLabel>
+                  <CheckGrid>
+                    {flavorsForCobertura.map((f) => (
+                      <CheckItem key={f.id} $checked={form.topping_ids.includes(f.id)}>
+                        <input type="checkbox" checked={form.topping_ids.includes(f.id)}
+                          onChange={() => toggleToppingId(f.id)} style={{ margin: 0 }} />
+                        {f.name}
+                      </CheckItem>
+                    ))}
+                  </CheckGrid>
                 </SectionDivider>
               )}
 
