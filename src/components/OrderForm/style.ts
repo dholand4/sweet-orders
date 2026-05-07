@@ -449,6 +449,107 @@ export const NotesList = styled.ul`
   line-height: ${({ theme }) => theme.lineHeights.relaxed};
 `;
 
+// ── Product image cards ──────────────────────────────────────
+
+export const ProductGrid = styled.div`
+  display: grid;
+  gap: 12px;
+  margin-top: 24px;
+  grid-template-columns: repeat(2, 1fr);
+
+  ${media.lg} {
+    grid-template-columns: repeat(3, 1fr);
+  }
+`;
+
+export const ProductCard = styled.button<{ $selected?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  border: 2px solid ${({ $selected }) => ($selected ? "var(--rose-5)" : "var(--line)")};
+  border-radius: 16px;
+  background: ${({ $selected }) => ($selected ? "var(--rose-2)" : "#fff")};
+  overflow: hidden;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: ${({ $selected }) => ($selected ? "0 0 0 3px rgba(233, 30, 99, 0.15)" : "var(--shadow-card)")};
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(233, 30, 99, 0.15);
+    border-color: var(--rose-4);
+  }
+
+  ${interactiveFocus}
+`;
+
+export const ProductImgWrap = styled.div`
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--rose-2);
+  position: relative;
+`;
+
+export const ProductImg = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+
+  ${ProductCard}:hover & {
+    transform: scale(1.04);
+  }
+`;
+
+export const ProductImgPlaceholder = styled.div`
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 2.5rem;
+  color: var(--rose-4);
+`;
+
+export const ProductSelectedBadge = styled.div`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--rose-5);
+  color: #fff;
+  font-size: 13px;
+  display: grid;
+  place-items: center;
+`;
+
+export const ProductCardBody = styled.div`
+  padding: 10px 12px 12px;
+  display: grid;
+  gap: 3px;
+  flex: 1;
+`;
+
+export const ProductCardName = styled.span`
+  color: var(--ink);
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  line-height: 1.2;
+`;
+
+export const ProductCardDesc = styled.span`
+  color: var(--muted);
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
 export const FeedbackCard = styled.div`
   display: grid;
   gap: 12px;

@@ -31,6 +31,15 @@ import {
   PriceText,
   PriceValue,
   PrimaryButton,
+  ProductCard,
+  ProductCardBody,
+  ProductCardDesc,
+  ProductCardName,
+  ProductGrid,
+  ProductImg,
+  ProductImgPlaceholder,
+  ProductImgWrap,
+  ProductSelectedBadge,
   RadioCard,
   RadioContent,
   RadioDot,
@@ -251,38 +260,51 @@ export function OrderForm({ catalog }: OrderFormProps) {
                 <SectionText>Escolha o produto, depois o tamanho, os sabores e a cobertura.</SectionText>
               </SectionHeading>
             </SectionHeader>
-            <Grid>
-              <FieldShell>
-                <Label htmlFor="productId">Tipo de bolo ou torta</Label>
-                <SelectWrap>
-                  <Select id="productId" value={selectedProductId}
-                    onChange={(e) => {
-                      const newId = e.target.value;
-                      setValue("productId",         newId, { shouldValidate: true });
-                      setValue("productSizeId",      "",   { shouldValidate: true });
-                      setValue("flavor1Id",          "",   { shouldValidate: true });
-                      setValue("flavor2Id",          "");
-                      setValue("toppingFlavor1Id",   "");
-                      setValue("topping2Id",         "");
-                      setValue("decorationStyleId",  "");
-                      const newProduct = catalog.products.find((p) => p.id === newId);
-                      const firstTopping = newProduct?.allowed_toppings[0];
+
+            {/* Seleção visual do produto */}
+            <ProductGrid>
+              {catalog.products.map((p) => {
+                const isSelected = selectedProductId === p.id;
+                return (
+                  <ProductCard
+                    key={p.id}
+                    type="button"
+                    $selected={isSelected}
+                    onClick={() => {
+                      setValue("productId",        p.id, { shouldValidate: true });
+                      setValue("productSizeId",     "",   { shouldValidate: true });
+                      setValue("flavor1Id",         "",   { shouldValidate: true });
+                      setValue("flavor2Id",         "");
+                      setValue("toppingFlavor1Id",  "");
+                      setValue("topping2Id",        "");
+                      setValue("decorationStyleId", "");
+                      const firstTopping = p.allowed_toppings[0];
                       setValue("topping1Id", firstTopping?.id ?? "");
-                    }}>
-                    <option value="">Selecione</option>
-                    {catalog.products.map((p) => (
-                      <option key={p.id} value={p.id}>{p.name}</option>
-                    ))}
-                  </Select>
-                </SelectWrap>
-                <FieldMessage>
-                  {errors.productId
-                    ? <ErrorText>{errors.productId.message}</ErrorText>
-                    : selectedProduct?.description
-                    ? <InlineMeta>{selectedProduct.description}</InlineMeta>
-                    : null}
-                </FieldMessage>
-              </FieldShell>
+                    }}
+                  >
+                    <ProductImgWrap>
+                      {p.image_url ? (
+                        <ProductImg src={p.image_url} alt={p.name} loading="lazy" />
+                      ) : (
+                        <ProductImgPlaceholder>🎂</ProductImgPlaceholder>
+                      )}
+                      {isSelected && <ProductSelectedBadge>✓</ProductSelectedBadge>}
+                    </ProductImgWrap>
+                    <ProductCardBody>
+                      <ProductCardName>{p.name}</ProductCardName>
+                      {p.description && <ProductCardDesc>{p.description}</ProductCardDesc>}
+                    </ProductCardBody>
+                  </ProductCard>
+                );
+              })}
+            </ProductGrid>
+            {errors.productId && (
+              <FieldMessage style={{ marginTop: 4 }}>
+                <ErrorText>{errors.productId.message}</ErrorText>
+              </FieldMessage>
+            )}
+
+            <Grid>
 
               <FieldShell>
                 <Label htmlFor="productSizeId">Tamanho e preço</Label>

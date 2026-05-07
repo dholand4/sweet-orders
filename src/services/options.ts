@@ -85,9 +85,9 @@ async function buildProductDetails(onlyActive: boolean): Promise<ProductWithDeta
       .filter((f) => flavorIds.includes(f.id) && f.type !== "cobertura")
       .sort((a, b) => a.sort_order - b.sort_order);
 
-    const allowed_toppings = activeFlavors
-      .filter((f) => toppingIds.includes(f.id) && f.type !== "recheio")
-      .sort((a, b) => a.sort_order - b.sort_order);
+    const allowed_toppings = product.max_toppings > 0
+      ? activeFlavors.filter((f) => f.type !== "recheio").sort((a, b) => a.sort_order - b.sort_order)
+      : [];
 
     const allowed_decoration_styles = activeDecoStyles
       .filter((d) => decoIds.includes(d.id))

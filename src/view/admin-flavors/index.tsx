@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styled, { keyframes, css } from "styled-components";
 import { media } from "@/utils/media";
@@ -494,6 +494,9 @@ export function FlavorsView({ flavorsOnly: initialFlavors, decoStyles: initialDe
   const [activeTab,  setActiveTab]  = useState<"sabores" | "temas">("sabores");
   const [flavors,    setFlavors]    = useState(initialFlavors);
   const [decoStyles, setDecoStyles] = useState(initialDecoStyles);
+
+  useEffect(() => { setFlavors(initialFlavors); }, [initialFlavors]);
+  useEffect(() => { setDecoStyles(initialDecoStyles); }, [initialDecoStyles]);
   const [mode,       setMode]       = useState<DrawerMode>(null);
   const [flavorForm, setFlavorForm] = useState<FlavorForm>(emptyFlavorForm);
   const [decoForm,   setDecoForm]   = useState<DecoForm>(emptyDecoForm);

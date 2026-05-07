@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import styled, { keyframes, css } from "styled-components";
 import { media } from "@/utils/media";
@@ -475,6 +475,7 @@ type ProductsViewProps = {
 export function ProductsView({ products: initialProducts, allFlavors, allDecoStyles }: ProductsViewProps) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
+  useEffect(() => { setProducts(initialProducts); }, [initialProducts]);
   const [form, setForm] = useState<ProductForm>(emptyProduct);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
