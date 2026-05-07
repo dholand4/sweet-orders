@@ -10,6 +10,7 @@ import type { ProductWithDetails } from "@/services/options";
 import type { Database } from "@/types/database";
 
 type FlavorRow = Database["public"]["Tables"]["flavor_options"]["Row"];
+type DecoStyleRow = Database["public"]["Tables"]["decoration_styles"]["Row"];
 
 // ─── Animations ──────────────────────────────────────────────
 const fadeUp = keyframes`
@@ -409,19 +410,20 @@ type SizeForm = {
 };
 
 type ProductForm = {
-  id?:                string;
-  name:               string;
-  type:               "bolo" | "torta" | "outro";
-  description:        string;
-  image_url:          string;
-  max_flavors:        1 | 2;
-  max_toppings:       0 | 1 | 2;
-  allow_dough_choice: boolean;
-  is_active:          boolean;
-  sort_order:         number;
-  sizes:              SizeForm[];
-  flavor_ids:         string[];
-  topping_ids:        string[];
+  id?:                  string;
+  name:                 string;
+  type:                 "bolo" | "torta" | "outro";
+  description:          string;
+  image_url:            string;
+  max_flavors:          1 | 2;
+  max_toppings:         0 | 1 | 2;
+  allow_dough_choice:   boolean;
+  is_active:            boolean;
+  sort_order:           number;
+  sizes:                SizeForm[];
+  flavor_ids:           string[];
+  topping_ids:          string[];
+  decoration_style_ids: string[];
 };
 
 function emptyProduct(): ProductForm {
@@ -429,22 +431,23 @@ function emptyProduct(): ProductForm {
     name: "", type: "bolo", description: "", image_url: "",
     max_flavors: 1, max_toppings: 1, allow_dough_choice: true,
     is_active: true, sort_order: 0, sizes: [], flavor_ids: [], topping_ids: [],
+    decoration_style_ids: [],
   };
 }
 
 function productToForm(p: ProductWithDetails): ProductForm {
   return {
-    id:                 p.id,
-    name:               p.name,
-    type:               p.type,
-    description:        p.description ?? "",
-    image_url:          p.image_url ?? "",
-    max_flavors:        p.max_flavors,
-    max_toppings:       p.max_toppings,
-    allow_dough_choice: p.allow_dough_choice,
-    is_active:          p.is_active,
-    sort_order:         p.sort_order,
-    sizes:              p.sizes.map((s) => ({
+    id:                   p.id,
+    name:                 p.name,
+    type:                 p.type,
+    description:          p.description ?? "",
+    image_url:            p.image_url ?? "",
+    max_flavors:          p.max_flavors,
+    max_toppings:         p.max_toppings,
+    allow_dough_choice:   p.allow_dough_choice,
+    is_active:            p.is_active,
+    sort_order:           p.sort_order,
+    sizes:                p.sizes.map((s) => ({
       id:         s.id,
       name:       s.name,
       servings:   s.servings ?? "",
@@ -452,8 +455,9 @@ function productToForm(p: ProductWithDetails): ProductForm {
       is_active:  s.is_active,
       sort_order: s.sort_order,
     })),
-    flavor_ids:  p.allowed_flavors.map((f) => f.id),
-    topping_ids: p.allowed_toppings.map((f) => f.id),
+    flavor_ids:           p.allowed_flavors.map((f) => f.id),
+    topping_ids:          p.allowed_toppings.map((f) => f.id),
+    decoration_style_ids: p.allowed_decoration_styles.map((d) => d.id),
   };
 }
 
@@ -463,11 +467,12 @@ function newSize(index: number): SizeForm {
 
 // ─── Component ────────────────────────────────────────────────
 type ProductsViewProps = {
-  products:   ProductWithDetails[];
-  allFlavors: FlavorRow[];
+  products:      ProductWithDetails[];
+  allFlavors:    FlavorRow[];
+  allDecoStyles: DecoStyleRow[];
 };
 
-export function ProductsView({ products: initialProducts, allFlavors }: ProductsViewProps) {
+export function ProductsView({ products: initialProducts, allFlavors, allDecoStyles }: ProductsViewProps) {
   const router = useRouter();
   const [products, setProducts] = useState(initialProducts);
   const [form, setForm] = useState<ProductForm>(emptyProduct);
@@ -475,7 +480,7 @@ export function ProductsView({ products: initialProducts, allFlavors }: Products
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const flavorsForRecheio = allFlavors.filter((f) => f.type !== "cobertura");
+  const flavorsForRecheio   = allFlavors.filter((f) => f.type !== "cobertura");
   const flavorsForCobertura = allFlavors.filter((f) => f.type !== "recheio");
 
   function openCreate() {
@@ -525,6 +530,15 @@ export function ProductsView({ products: initialProducts, allFlavors }: Products
       topping_ids: f.topping_ids.includes(id)
         ? f.topping_ids.filter((tid) => tid !== id)
         : [...f.topping_ids, id],
+    }));
+  }
+
+  function toggleDecoStyleId(id: string) {
+    setForm((f) => ({
+      ...f,
+      decoration_style_ids: f.decoration_style_ids.includes(id)
+        ? f.decoration_style_ids.filter((did) => did !== id)
+        : [...f.decoration_style_ids, id],
     }));
   }
 
@@ -748,10 +762,10 @@ export function ProductsView({ products: initialProducts, allFlavors }: Products
                 </CheckGrid>
               </SectionDivider>
 
-              {/* Coberturas permitidas */}
+              {/* Coberturas (creme) permitidas */}
               {form.max_toppings > 0 && (
                 <SectionDivider>
-                  <SectionLabel>Coberturas permitidas ({form.topping_ids.length} selecionadas)</SectionLabel>
+                  <SectionLabel>Coberturas / Creme ({form.topping_ids.length} selecionado{form.topping_ids.length !== 1 ? "s" : ""})</SectionLabel>
                   <CheckGrid>
                     {flavorsForCobertura.map((f) => (
                       <CheckItem key={f.id} $checked={form.topping_ids.includes(f.id)}>
@@ -763,6 +777,22 @@ export function ProductsView({ products: initialProducts, allFlavors }: Products
                   </CheckGrid>
                 </SectionDivider>
               )}
+
+              {/* Estilos decorativos permitidos */}
+              <SectionDivider>
+                <SectionLabel>Estilos decorativos ({form.decoration_style_ids.length} selecionado{form.decoration_style_ids.length !== 1 ? "s" : ""})</SectionLabel>
+                <CheckGrid>
+                  {allDecoStyles.map((d) => (
+                    <CheckItem key={d.id} $checked={form.decoration_style_ids.includes(d.id)}>
+                      <input type="checkbox" checked={form.decoration_style_ids.includes(d.id)}
+                        onChange={() => toggleDecoStyleId(d.id)} style={{ margin: 0 }} />
+                      {d.name}
+                      {d.price_type === "fixed_extra" && d.price_extra != null && ` (+R$${Number(d.price_extra).toFixed(2)})`}
+                      {d.price_type === "negotiate" && " (a combinar)"}
+                    </CheckItem>
+                  ))}
+                </CheckGrid>
+              </SectionDivider>
 
               {error && <ErrorMsg>{error}</ErrorMsg>}
             </DrawerBody>

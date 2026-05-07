@@ -1,6 +1,12 @@
 export type FlavorRef = { id: string; name: string } | null;
 export type ProductRef = { id: string; name: string; type: string } | null;
 export type SizeRef = { id: string; name: string; servings: string | null; price: number } | null;
+export type DecorationStyleRef = {
+  id: string;
+  name: string;
+  price_type: "included" | "fixed_extra" | "negotiate";
+  price_extra: number | null;
+} | null;
 
 export type AdminOrder = {
   id: string;
@@ -26,4 +32,5 @@ export type AdminOrder = {
   flavor_2: FlavorRef;
   topping_1: FlavorRef;
   topping_2: FlavorRef;
+  decoration_style: DecorationStyleRef;
 };

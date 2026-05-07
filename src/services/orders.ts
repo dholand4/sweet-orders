@@ -17,7 +17,8 @@ export async function getOrders(status?: string): Promise<AdminOrder[]> {
       street, number, district, city, reference,
       dough_type, status, total_price, created_at,
       product_id, product_size_id,
-      flavor_1_id, flavor_2_id, topping_1_id, topping_2_id
+      flavor_1_id, flavor_2_id, topping_1_id, topping_2_id,
+      decoration_style_id
     `)
     .order("created_at", { ascending: false });
 
@@ -33,17 +34,17 @@ export async function getOrders(status?: string): Promise<AdminOrder[]> {
 
   if (!rows || rows.length === 0) return [];
 
-  // Collect unique IDs for batch lookups
-  const productIds     = [...new Set(rows.map((r) => r.product_id).filter(Boolean))];
-  const sizeIds        = [...new Set(rows.map((r) => r.product_size_id).filter(Boolean))];
-  const flavorIds      = [...new Set([
+  const productIds  = [...new Set(rows.map((r) => r.product_id).filter(Boolean))];
+  const sizeIds     = [...new Set(rows.map((r) => r.product_size_id).filter(Boolean))];
+  const decoIds     = [...new Set(rows.map((r) => r.decoration_style_id).filter(Boolean))];
+  const flavorIds   = [...new Set([
     ...rows.map((r) => r.flavor_1_id),
     ...rows.map((r) => r.flavor_2_id),
     ...rows.map((r) => r.topping_1_id),
     ...rows.map((r) => r.topping_2_id),
   ].filter(Boolean))];
 
-  const [products, sizes, flavors] = await Promise.all([
+  const [products, sizes, flavors, decoStyles] = await Promise.all([
     productIds.length
       ? supabase.from("products").select("id, name, type").in("id", productIds)
       : { data: [] },
@@ -53,21 +54,26 @@ export async function getOrders(status?: string): Promise<AdminOrder[]> {
     flavorIds.length
       ? supabase.from("flavor_options").select("id, name").in("id", flavorIds)
       : { data: [] },
+    decoIds.length
+      ? supabase.from("decoration_styles").select("id, name, price_type, price_extra").in("id", decoIds)
+      : { data: [] },
   ]);
 
   const pMap = Object.fromEntries((products.data ?? []).map((p) => [p.id, p]));
   const sMap = Object.fromEntries((sizes.data ?? []).map((s) => [s.id, s]));
   const fMap = Object.fromEntries((flavors.data ?? []).map((f) => [f.id, f]));
+  const dMap = Object.fromEntries((decoStyles.data ?? []).map((d) => [d.id, d]));
 
   return rows.map((item) => ({
     ...item,
-    total_price:  Number(item.total_price),
-    product:      item.product_id      ? pMap[item.product_id]      ?? null : null,
-    product_size: item.product_size_id ? sMap[item.product_size_id] ?? null : null,
-    flavor_1:     item.flavor_1_id     ? fMap[item.flavor_1_id]     ?? null : null,
-    flavor_2:     item.flavor_2_id     ? fMap[item.flavor_2_id]     ?? null : null,
-    topping_1:    item.topping_1_id    ? fMap[item.topping_1_id]    ?? null : null,
-    topping_2:    item.topping_2_id    ? fMap[item.topping_2_id]    ?? null : null,
+    total_price:      Number(item.total_price),
+    product:          item.product_id          ? pMap[item.product_id]          ?? null : null,
+    product_size:     item.product_size_id     ? sMap[item.product_size_id]     ?? null : null,
+    flavor_1:         item.flavor_1_id         ? fMap[item.flavor_1_id]         ?? null : null,
+    flavor_2:         item.flavor_2_id         ? fMap[item.flavor_2_id]         ?? null : null,
+    topping_1:        item.topping_1_id        ? fMap[item.topping_1_id]        ?? null : null,
+    topping_2:        item.topping_2_id        ? fMap[item.topping_2_id]        ?? null : null,
+    decoration_style: item.decoration_style_id ? dMap[item.decoration_style_id] ?? null : null,
   })) as AdminOrder[];
 }
 

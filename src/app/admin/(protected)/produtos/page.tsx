@@ -5,10 +5,10 @@ import { getAdminCatalog } from "@/services/options";
 export const dynamic = "force-dynamic";
 
 export default async function ProdutosPage() {
-  const { products, allFlavors } = await getAdminCatalog();
+  const { products, allFlavors, allDecoStyles } = await getAdminCatalog();
   return (
     <AdminLayout title="Produtos">
-      <ProductsView products={products} allFlavors={allFlavors} />
+      <ProductsView products={products} allFlavors={allFlavors} allDecoStyles={allDecoStyles} />
     </AdminLayout>
   );
 }
