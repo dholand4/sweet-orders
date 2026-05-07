@@ -76,8 +76,40 @@ function getAllowedNextStatuses(currentStatus: string) {
   return ["novo"] as StatusOptionValue[];
 }
 
-function needsPrettyConfirmation(currentStatus: string, nextStatus: string) {
-  return currentStatus !== nextStatus && (nextStatus === "cancelado" || nextStatus === "finalizado");
+function getStatusActionCopy(currentStatus: string, nextStatus: string) {
+  if (currentStatus === nextStatus) {
+    return null;
+  }
+
+  if (nextStatus === "confirmado") {
+    return {
+      title: "Confirmar pedido",
+      description: "Deseja confirmar este pedido agora?",
+      confirmLabel: "Confirmar pedido",
+    };
+  }
+
+  if (nextStatus === "cancelado") {
+    return {
+      title: "Cancelar pedido",
+      description: "Deseja cancelar este pedido agora?",
+      confirmLabel: "Confirmar cancelamento",
+    };
+  }
+
+  if (nextStatus === "finalizado") {
+    return {
+      title: "Finalizar pedido",
+      description: "Deseja marcar este pedido como finalizado?",
+      confirmLabel: "Confirmar finalizacao",
+    };
+  }
+
+  return {
+    title: "Atualizar status",
+    description: "Deseja atualizar o status deste pedido?",
+    confirmLabel: "Confirmar alteracao",
+  };
 }
 
 export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
@@ -165,16 +197,11 @@ export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
       return;
     }
 
-    if (needsPrettyConfirmation(currentOrderStatus, nextStatus)) {
-      setPendingStatusChange({
-        orderId,
-        currentStatus: currentOrderStatus,
-        nextStatus,
-      });
-      return;
-    }
-
-    void persistStatusChange(orderId, nextStatus);
+    setPendingStatusChange({
+      orderId,
+      currentStatus: currentOrderStatus,
+      nextStatus,
+    });
   }
 
   async function copySummary(order: AdminOrder) {
@@ -422,16 +449,20 @@ export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
           >
             <ModalHeader>
               <ModalTitle id="status-confirmation-title">
-                {pendingStatusChange.nextStatus === "cancelado" ? "Cancelar pedido" : "Finalizar pedido"}
+                {getStatusActionCopy(
+                  pendingStatusChange.currentStatus,
+                  pendingStatusChange.nextStatus,
+                )?.title ?? "Atualizar status"}
               </ModalTitle>
               <ModalCloseButton type="button" onClick={() => setPendingStatusChange(null)}>
                 Fechar
               </ModalCloseButton>
             </ModalHeader>
             <ConfirmText>
-              {pendingStatusChange.nextStatus === "cancelado"
-                ? "Tem certeza que deseja cancelar este pedido? Essa acao tira o pedido do fluxo ativo da loja."
-                : "Tem certeza que deseja marcar este pedido como finalizado? Use isso quando a entrega ou retirada ja estiver concluida."}
+              {getStatusActionCopy(
+                pendingStatusChange.currentStatus,
+                pendingStatusChange.nextStatus,
+              )?.description ?? "Deseja seguir com essa alteracao de status?"}
             </ConfirmText>
             <ModalActions>
               <ActionButton type="button" $secondary onClick={() => setPendingStatusChange(null)}>
@@ -447,7 +478,10 @@ export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
                   setPendingStatusChange(null);
                 }}
               >
-                {pendingStatusChange.nextStatus === "cancelado" ? "Confirmar cancelamento" : "Confirmar finalizacao"}
+                {getStatusActionCopy(
+                  pendingStatusChange.currentStatus,
+                  pendingStatusChange.nextStatus,
+                )?.confirmLabel ?? "Confirmar alteracao"}
               </ActionButton>
             </ModalActions>
           </ModalCard>
