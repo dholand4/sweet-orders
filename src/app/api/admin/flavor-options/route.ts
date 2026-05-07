@@ -4,6 +4,29 @@ import { isAdminAuthenticated } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase";
 import { flavorOptionSchema } from "@/utils/validations";
 
+/** Save payload, retrying without has_flavor if the column doesn't exist yet in this DB. */
+async function upsertFlavor(
+  supabase: ReturnType<typeof import("@/lib/supabase").createSupabaseServerClient>,
+  id: string | undefined,
+  payload: Record<string, unknown>,
+) {
+  const run = (p: Record<string, unknown>) =>
+    id
+      ? supabase.from("flavor_options").update(p).eq("id", id)
+      : supabase.from("flavor_options").insert(p);
+
+  let { error } = await run(payload);
+
+  // Column doesn't exist yet → retry without has_flavor (user must run migration)
+  if (error?.message?.includes("has_flavor")) {
+    const { has_flavor: _ignored, ...rest } = payload;
+    const result = await run(rest);
+    error = result.error;
+  }
+
+  if (error) throw new Error(error.message);
+}
+
 export async function POST(request: Request) {
   if (!(await isAdminAuthenticated())) {
     return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
@@ -23,20 +46,10 @@ export async function POST(request: Request) {
       sort_order:  parsed.sort_order ?? 0,
     };
 
-    if (parsed.id) {
-      const { error } = await supabase
-        .from("flavor_options")
-        .update(payload)
-        .eq("id", parsed.id);
-
-      if (error) throw new Error(error.message);
-    } else {
-      const { error } = await supabase.from("flavor_options").insert(payload);
-      if (error) throw new Error(error.message);
-    }
+    await upsertFlavor(supabase, parsed.id, payload);
 
     revalidatePath("/admin/sabores");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
 
     return NextResponse.json({
       message: parsed.id ? "Sabor atualizado com sucesso." : "Sabor criado com sucesso.",
@@ -67,7 +80,7 @@ export async function PATCH(request: Request) {
     if (error) throw new Error(error.message);
 
     revalidatePath("/admin/sabores");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
 
     return NextResponse.json({ message: "Status atualizado." });
   } catch (error) {

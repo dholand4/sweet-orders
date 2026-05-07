@@ -118,7 +118,7 @@ export function OrderForm({ catalog }: OrderFormProps) {
   const [isLoadingCep,     setIsLoadingCep]     = useState(false);
 
   const {
-    register, watch, setValue, getValues, handleSubmit, reset,
+    register, watch, setValue, setError, getValues, handleSubmit, reset,
     formState: { errors },
   } = useForm<OrderFormValues>({ resolver: zodResolver(orderFormSchema), defaultValues });
 
@@ -194,6 +194,27 @@ export function OrderForm({ catalog }: OrderFormProps) {
     setSubmitError("");
     setCepError("");
     setSuccessMessage("");
+
+    // Conditional required-field validation (product config is not in Zod schema)
+    let fieldError = false;
+    if (!values.productId) {
+      setSubmitError("Selecione um produto antes de continuar.");
+      return;
+    }
+    if (!values.productSizeId) {
+      setError("productSizeId", { message: "Selecione o tamanho." });
+      fieldError = true;
+    }
+    if (allowedFlavors.length > 0 && !values.flavor1Id) {
+      setError("flavor1Id", { message: "Selecione o sabor/recheio." });
+      fieldError = true;
+    }
+    if (maxToppings >= 1 && allowedToppings.length > 0 && !values.topping1Id) {
+      setError("topping1Id", { message: "Selecione a cobertura." });
+      fieldError = true;
+    }
+    if (fieldError) return;
+
     setIsSubmittingForm(true);
 
     const themeValue = values.wantsTheme === "sim" ? values.themeDescription : "";
@@ -379,7 +400,9 @@ export function OrderForm({ catalog }: OrderFormProps) {
                       ))}
                     </Select>
                   </SelectWrap>
-                  <FieldMessage />
+                  <FieldMessage>
+                    {errors.topping1Id && <ErrorText>{errors.topping1Id.message}</ErrorText>}
+                  </FieldMessage>
                 </FieldShell>
               )}
 

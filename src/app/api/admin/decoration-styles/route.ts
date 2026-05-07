@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     }
 
     revalidatePath("/admin/sabores");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
 
     return NextResponse.json({
       message: parsed.id ? "Estilo atualizado com sucesso." : "Estilo criado com sucesso.",
@@ -66,7 +66,7 @@ export async function PATCH(request: Request) {
     if (error) throw new Error(error.message);
 
     revalidatePath("/admin/sabores");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
 
     return NextResponse.json({ message: "Status atualizado." });
   } catch (error) {

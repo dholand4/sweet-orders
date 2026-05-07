@@ -89,7 +89,7 @@ export async function POST(request: Request) {
     }
 
     revalidatePath("/admin/produtos");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
 
     return NextResponse.json({
       message: isUpdate ? "Produto atualizado com sucesso." : "Produto criado com sucesso.",
@@ -117,7 +117,7 @@ export async function PATCH(request: Request) {
     if (error) throw new Error(error.message);
 
     revalidatePath("/admin/produtos");
-    revalidatePath("/");
+    revalidatePath("/", "layout");
 
     return NextResponse.json({ message: "Status atualizado." });
   } catch (error) {
