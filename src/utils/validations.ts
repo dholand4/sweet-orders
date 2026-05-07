@@ -14,6 +14,7 @@ export const orderFormSchema = z.object({
   flavorId: z.string().uuid("Selecione o sabor."),
   fillingId: z.string().uuid("Selecione o recheio."),
   toppingId: z.string().uuid("Selecione a cobertura."),
+  doughType: z.enum(["massa_branca", "massa_chocolate"]).optional().default("massa_branca"),
   cep: z.string().optional().default(""),
   wantsTheme: z.enum(["sim", "nao"]).optional().default("nao"),
   themeStyle: z.string().max(120, "Estilo de tema muito longo.").optional().default(""),
