@@ -18,6 +18,7 @@ export async function POST(request: Request) {
       name:        parsed.name,
       type:        parsed.type,
       description: parsed.description || null,
+      has_flavor:  parsed.has_flavor ?? true,
       is_active:   parsed.is_active,
       sort_order:  parsed.sort_order ?? 0,
     };

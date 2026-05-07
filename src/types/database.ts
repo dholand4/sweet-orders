@@ -88,6 +88,7 @@ export type Database = {
           name: string;
           type: "recheio" | "cobertura" | "ambos";
           description: string | null;
+          has_flavor: boolean;
           is_active: boolean;
           sort_order: number;
           created_at: string;
@@ -97,6 +98,7 @@ export type Database = {
           name: string;
           type?: "recheio" | "cobertura" | "ambos";
           description?: string | null;
+          has_flavor?: boolean;
           is_active?: boolean;
           sort_order?: number;
           created_at?: string;
@@ -106,6 +108,7 @@ export type Database = {
           name?: string;
           type?: "recheio" | "cobertura" | "ambos";
           description?: string | null;
+          has_flavor?: boolean;
           is_active?: boolean;
           sort_order?: number;
           created_at?: string;

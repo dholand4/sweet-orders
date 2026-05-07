@@ -38,6 +38,7 @@ export const flavorOptionSchema = z.object({
   name:        z.string().min(2, "Nome obrigatório."),
   type:        z.enum(["recheio", "cobertura", "ambos"]),
   description: z.string().max(200).optional().default(""),
+  has_flavor:  z.boolean().optional().default(true),
   is_active:   z.boolean(),
   sort_order:  z.coerce.number().int().min(0).optional().default(0),
 });

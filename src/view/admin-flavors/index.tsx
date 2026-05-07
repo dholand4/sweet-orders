@@ -421,12 +421,13 @@ type FlavorForm = {
   name: string;
   type: "recheio" | "cobertura" | "ambos";
   description: string;
+  has_flavor: boolean;
   is_active: boolean;
   sort_order: number;
 };
 
 const emptyFlavorForm: FlavorForm = {
-  name: "", type: "ambos", description: "", is_active: true, sort_order: 0,
+  name: "", type: "ambos", description: "", has_flavor: true, is_active: true, sort_order: 0,
 };
 
 // ─── Deco form ────────────────────────────────────────────────
@@ -479,7 +480,7 @@ export function FlavorsView({ flavorsOnly: initialFlavors, decoStyles: initialDe
   }
 
   function openEditFlavor(f: FlavorRow) {
-    setFlavorForm({ id: f.id, name: f.name, type: f.type, description: f.description ?? "", is_active: f.is_active, sort_order: f.sort_order });
+    setFlavorForm({ id: f.id, name: f.name, type: f.type, description: f.description ?? "", has_flavor: f.has_flavor, is_active: f.is_active, sort_order: f.sort_order });
     setError("");
     setMode("flavor");
   }
@@ -606,6 +607,11 @@ export function FlavorsView({ flavorsOnly: initialFlavors, decoStyles: initialDe
                 {f.description && <CardDesc>{f.description}</CardDesc>}
                 <span style={{ fontSize: "0.75rem" }}>
                   <StatusDot $active={f.is_active} />{f.is_active ? "Ativo" : "Inativo"}
+                  {(f.type === "cobertura" || f.type === "ambos") && (
+                    <span style={{ marginLeft: 8, opacity: 0.7 }}>
+                      · {f.has_flavor ? "Com sabor" : "Sem sabor"}
+                    </span>
+                  )}
                 </span>
                 <CardActions>
                   <ActionBtn $outline type="button" onClick={() => openEditFlavor(f)}>Editar</ActionBtn>
@@ -701,6 +707,13 @@ export function FlavorsView({ flavorsOnly: initialFlavors, decoStyles: initialDe
                   <Input id="fo-order" type="number" min={0} value={flavorForm.sort_order}
                     onChange={(e) => setFlavorForm((s) => ({ ...s, sort_order: Number(e.target.value) }))} />
                 </FieldGroup>
+                {(flavorForm.type === "cobertura" || flavorForm.type === "ambos") && (
+                  <CheckRow>
+                    <input type="checkbox" checked={flavorForm.has_flavor}
+                      onChange={(e) => setFlavorForm((s) => ({ ...s, has_flavor: e.target.checked }))} />
+                    Tem sabor de cobertura? (cliente escolhe o sabor ao pedir)
+                  </CheckRow>
+                )}
                 <CheckRow>
                   <input type="checkbox" checked={flavorForm.is_active}
                     onChange={(e) => setFlavorForm((s) => ({ ...s, is_active: e.target.checked }))} />

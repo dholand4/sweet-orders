@@ -135,8 +135,7 @@ export function OrderForm({ catalog }: OrderFormProps) {
   const selectedDecoStyle      = allowedDecoStyles.find((d) => d.id === watch("decorationStyleId"));
   const selectedDoughType      = watch("doughType");
 
-  const isChantininho   = selectedTopping1?.name.toLowerCase().includes("chantininho") ?? false;
-  const showTopping1Flavor = maxToppings >= 1 && !!watch("topping1Id") && !isChantininho;
+  const showTopping1Flavor = maxToppings >= 1 && !!watch("topping1Id") && (selectedTopping1?.has_flavor !== false);
 
   const doughTypeLabel = selectedDoughType === "massa_chocolate" ? "Massa de chocolate" : "Massa branca";
   const themeSummary   = wantsTheme === "sim"
@@ -258,14 +257,17 @@ export function OrderForm({ catalog }: OrderFormProps) {
                 <SelectWrap>
                   <Select id="productId" value={selectedProductId}
                     onChange={(e) => {
-                      setValue("productId",         e.target.value, { shouldValidate: true });
-                      setValue("productSizeId",      "",             { shouldValidate: true });
-                      setValue("flavor1Id",          "",             { shouldValidate: true });
+                      const newId = e.target.value;
+                      setValue("productId",         newId, { shouldValidate: true });
+                      setValue("productSizeId",      "",   { shouldValidate: true });
+                      setValue("flavor1Id",          "",   { shouldValidate: true });
                       setValue("flavor2Id",          "");
-                      setValue("topping1Id",         "");
                       setValue("toppingFlavor1Id",   "");
                       setValue("topping2Id",         "");
                       setValue("decorationStyleId",  "");
+                      const newProduct = catalog.products.find((p) => p.id === newId);
+                      const firstTopping = newProduct?.allowed_toppings[0];
+                      setValue("topping1Id", firstTopping?.id ?? "");
                     }}>
                     <option value="">Selecione</option>
                     {catalog.products.map((p) => (
@@ -448,43 +450,45 @@ export function OrderForm({ catalog }: OrderFormProps) {
 
               {wantsTheme === "sim" && (
                 <>
-                  {/* Estilo decorativo — lado esquerdo */}
                   {allowedDecoStyles.length > 0 && (
-                    <FieldShell>
-                      <Label htmlFor="decorationStyleId">Estilo decorativo</Label>
-                      <SelectWrap>
-                        <Select id="decorationStyleId" {...register("decorationStyleId")}>
-                          <option value="">Selecione o estilo</option>
-                          {allowedDecoStyles.map((d) => (
-                            <option key={d.id} value={d.id}>
-                              {d.name}
-                              {d.price_type === "fixed_extra" && d.price_extra != null
-                                ? ` (+R$${Number(d.price_extra).toFixed(2)})`
-                                : d.price_type === "negotiate"
-                                ? " (a combinar)"
-                                : " (incluso)"}
-                            </option>
-                          ))}
-                        </Select>
-                      </SelectWrap>
-                      {selectedDecoStyle?.description && (
-                        <InlineMeta>{selectedDecoStyle.description}</InlineMeta>
-                      )}
-                      {isNegotiate && (
-                        <InlineMeta style={{ color: "var(--warning, #d97706)", fontWeight: 500 }}>
-                          ⚠ Tema 3D — o valor final será combinado pelo WhatsApp após a confirmação.
-                        </InlineMeta>
-                      )}
-                    </FieldShell>
+                    <FullWidth>
+                      <FieldShell>
+                        <Label htmlFor="decorationStyleId">Estilo decorativo</Label>
+                        <SelectWrap>
+                          <Select id="decorationStyleId" {...register("decorationStyleId")}>
+                            <option value="">Selecione o estilo</option>
+                            {allowedDecoStyles.map((d) => (
+                              <option key={d.id} value={d.id}>
+                                {d.name}
+                                {d.price_type === "fixed_extra" && d.price_extra != null
+                                  ? ` (+R$${Number(d.price_extra).toFixed(2)})`
+                                  : d.price_type === "negotiate"
+                                  ? " (a combinar)"
+                                  : " (incluso)"}
+                              </option>
+                            ))}
+                          </Select>
+                        </SelectWrap>
+                        {selectedDecoStyle?.description && (
+                          <InlineMeta>{selectedDecoStyle.description}</InlineMeta>
+                        )}
+                        {isNegotiate && (
+                          <InlineMeta style={{ color: "var(--warning, #d97706)", fontWeight: 500 }}>
+                            ⚠ Tema 3D — o valor final será combinado pelo WhatsApp após a confirmação.
+                          </InlineMeta>
+                        )}
+                      </FieldShell>
+                    </FullWidth>
                   )}
 
-                  {/* Descrição do tema — lado direito */}
-                  <FieldShell>
-                    <Label htmlFor="themeDescription">Descrição do tema</Label>
-                    <Textarea id="themeDescription"
-                      placeholder="Ex.: nome da aniversariante, paleta de cores, personagem, referências."
-                      {...register("themeDescription")} />
-                  </FieldShell>
+                  <FullWidth>
+                    <FieldShell>
+                      <Label htmlFor="themeDescription">Descrição do tema</Label>
+                      <Textarea id="themeDescription"
+                        placeholder="Ex.: nome da aniversariante, paleta de cores, personagem, referências."
+                        {...register("themeDescription")} />
+                    </FieldShell>
+                  </FullWidth>
                 </>
               )}
 
