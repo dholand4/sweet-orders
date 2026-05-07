@@ -1,5 +1,5 @@
-import type { PublicOptionsSnapshot } from "@/services/options";
+import type { PublicCatalog } from "@/services/options";
 
 export type OrderFormProps = {
-  options: PublicOptionsSnapshot;
+  catalog: PublicCatalog;
 };

@@ -3,98 +3,106 @@
 import { useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  Brand,
-  ContentCard,
-  Description,
-  DrawerBackdrop,
-  DrawerCloseButton,
+  Backdrop,
+  BrandIcon,
+  BrandName,
+  BrandSub,
+  BrandText,
+  Content,
+  HamburgerButton,
   LogoutButton,
-  MenuButton,
-  MobileTitle,
+  Main,
   Nav,
+  NavIcon,
   NavLink,
-  PageContainer,
+  NavSection,
+  NavSectionLabel,
+  PageTitle,
   Shell,
-  Title,
-  TitleWrap,
+  Sidebar,
+  SidebarBrand,
+  SidebarFooter,
+  StoreBadge,
   Topbar,
+  TopbarActions,
 } from "./style";
 import type { AdminLayoutProps } from "./types";
 
-export function AdminLayout({
-  title,
-  description,
-  children,
-}: AdminLayoutProps) {
+const NAV_ITEMS = [
+  { href: "/admin/dashboard", icon: "◈", label: "Dashboard" },
+  { href: "/admin/pedidos",   icon: "📋", label: "Pedidos" },
+  { href: "/admin/produtos",  icon: "🎂", label: "Produtos" },
+  { href: "/admin/sabores",   icon: "🍰", label: "Sabores" },
+];
+
+export function AdminLayout({ title, children }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   async function handleLogout() {
-    await fetch("/api/admin/logout", {
-      method: "POST",
-    });
-
-    setIsMenuOpen(false);
+    await fetch("/api/admin/logout", { method: "POST" });
     router.push("/admin");
     router.refresh();
   }
 
-  function closeMenu() {
-    setIsMenuOpen(false);
-  }
-
   return (
     <Shell>
-      <PageContainer>
+      <Sidebar $open={open}>
+        <SidebarBrand>
+          <BrandIcon>🎂</BrandIcon>
+          <BrandText>
+            <BrandName>Dany Ruivo</BrandName>
+            <BrandSub>Bolos e Tortas</BrandSub>
+          </BrandText>
+        </SidebarBrand>
+
+        <Nav>
+          <NavSection>
+            <NavSectionLabel>Menu</NavSectionLabel>
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.href}
+                href={item.href}
+                $active={pathname === item.href || pathname.startsWith(item.href + "/")}
+                onClick={() => setOpen(false)}
+              >
+                <NavIcon>{item.icon}</NavIcon>
+                {item.label}
+              </NavLink>
+            ))}
+          </NavSection>
+        </Nav>
+
+        <SidebarFooter>
+          <LogoutButton type="button" onClick={handleLogout}>
+            <NavIcon>⟵</NavIcon>
+            Sair do painel
+          </LogoutButton>
+        </SidebarFooter>
+      </Sidebar>
+
+      {open && <Backdrop onClick={() => setOpen(false)} />}
+
+      <Main>
         <Topbar>
-          <MobileTitle>Painel administrativo</MobileTitle>
-          <MenuButton
+          <HamburgerButton
             type="button"
-            aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={isMenuOpen}
-            onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
+            aria-label="Abrir menu"
+            onClick={() => setOpen(true)}
           >
-            {isMenuOpen ? "Fechar" : "Menu"}
-          </MenuButton>
-
-          <Brand>
-            <TitleWrap>
-              <Title>{title}</Title>
-              <Description>{description}</Description>
-            </TitleWrap>
-          </Brand>
-
-          <div>
-            <Nav $open={isMenuOpen}>
-              <DrawerCloseButton type="button" onClick={closeMenu}>
-                Fechar
-              </DrawerCloseButton>
-              <NavLink
-                href="/admin/pedidos"
-                $active={pathname === "/admin/pedidos"}
-                onClick={closeMenu}
-              >
-                Pedidos
-              </NavLink>
-              <NavLink
-                href="/admin/opcoes"
-                $active={pathname === "/admin/opcoes"}
-                onClick={closeMenu}
-              >
-                Opções
-              </NavLink>
-              <LogoutButton type="button" onClick={handleLogout}>
-                Sair
-              </LogoutButton>
-            </Nav>
-          </div>
+            ☰
+          </HamburgerButton>
+          <PageTitle>{title}</PageTitle>
+          <TopbarActions>
+            <StoreBadge href="/" target="_blank" rel="noreferrer">
+              ↗ Ver loja
+            </StoreBadge>
+          </TopbarActions>
         </Topbar>
 
-        {isMenuOpen ? <DrawerBackdrop role="presentation" onClick={closeMenu} /> : null}
-
-        <ContentCard>{children}</ContentCard>
-      </PageContainer>
+        <Content>{children}</Content>
+      </Main>
     </Shell>
   );
 }

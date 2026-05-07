@@ -10,18 +10,31 @@ import {
 } from "./style";
 import type { OrderDetailsProps } from "./types";
 
+const DOUGH_LABELS: Record<string, string> = {
+  massa_branca:     "Massa branca",
+  massa_chocolate:  "Massa de chocolate",
+};
+
 export function OrderDetails({ order }: OrderDetailsProps) {
   if (!order) {
     return (
       <DetailsShell>
         <DetailsTitle>Selecione um pedido</DetailsTitle>
         <DetailsText>
-          Clique em “Ver detalhes” para revisar o resumo completo, endereço e as
+          Clique em "Ver detalhes" para revisar o resumo completo, endereço e as
           preferências da cliente.
         </DetailsText>
       </DetailsShell>
     );
   }
+
+  const flavorsLine = [order.flavor_1?.name, order.flavor_2?.name]
+    .filter(Boolean)
+    .join(" + ") || "-";
+
+  const toppingsLine = [order.topping_1?.name, order.topping_2?.name]
+    .filter(Boolean)
+    .join(" + ") || "-";
 
   return (
     <DetailsShell>
@@ -33,7 +46,7 @@ export function OrderDetails({ order }: OrderDetailsProps) {
         </DetailItem>
         <DetailItem>
           <DetailLabel>Produto</DetailLabel>
-          <DetailValue>{order.product_type?.name ?? "-"}</DetailValue>
+          <DetailValue>{order.product?.name ?? "-"}</DetailValue>
         </DetailItem>
         <DetailItem>
           <DetailLabel>Tamanho</DetailLabel>
@@ -43,12 +56,19 @@ export function OrderDetails({ order }: OrderDetailsProps) {
           </DetailValue>
         </DetailItem>
         <DetailItem>
-          <DetailLabel>Sabor / Recheio / Cobertura</DetailLabel>
-          <DetailValue>
-            {order.flavor?.name ?? "-"} / {order.filling?.name ?? "-"} /{" "}
-            {order.topping?.name ?? "-"}
-          </DetailValue>
+          <DetailLabel>Recheio / Sabor</DetailLabel>
+          <DetailValue>{flavorsLine}</DetailValue>
         </DetailItem>
+        <DetailItem>
+          <DetailLabel>Cobertura</DetailLabel>
+          <DetailValue>{toppingsLine}</DetailValue>
+        </DetailItem>
+        {order.dough_type && (
+          <DetailItem>
+            <DetailLabel>Massa</DetailLabel>
+            <DetailValue>{DOUGH_LABELS[order.dough_type] ?? order.dough_type}</DetailValue>
+          </DetailItem>
+        )}
         <DetailItem>
           <DetailLabel>Tema</DetailLabel>
           <DetailValue>{order.theme || "-"}</DetailValue>
@@ -70,6 +90,12 @@ export function OrderDetails({ order }: OrderDetailsProps) {
             {order.reference ? ` • Ref.: ${order.reference}` : ""}
           </DetailValue>
         </DetailItem>
+        {order.cep && (
+          <DetailItem>
+            <DetailLabel>CEP</DetailLabel>
+            <DetailValue>{order.cep}</DetailValue>
+          </DetailItem>
+        )}
         <DetailItem>
           <DetailLabel>Valor</DetailLabel>
           <DetailValue>{formatCurrencyBRL(order.total_price)}</DetailValue>

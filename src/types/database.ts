@@ -9,116 +9,140 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      product_types: {
+      products: {
         Row: {
           id: string;
           name: string;
-          slug: string;
-          active: boolean;
+          type: "bolo" | "torta" | "outro";
+          description: string | null;
+          image_url: string | null;
+          max_flavors: 1 | 2;
+          max_toppings: 0 | 1 | 2;
+          allow_dough_choice: boolean;
+          is_active: boolean;
+          sort_order: number;
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
-          slug: string;
-          active?: boolean;
+          type?: "bolo" | "torta" | "outro";
+          description?: string | null;
+          image_url?: string | null;
+          max_flavors?: 1 | 2;
+          max_toppings?: 0 | 1 | 2;
+          allow_dough_choice?: boolean;
+          is_active?: boolean;
+          sort_order?: number;
           created_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
-          slug?: string;
-          active?: boolean;
+          type?: "bolo" | "torta" | "outro";
+          description?: string | null;
+          image_url?: string | null;
+          max_flavors?: 1 | 2;
+          max_toppings?: 0 | 1 | 2;
+          allow_dough_choice?: boolean;
+          is_active?: boolean;
+          sort_order?: number;
           created_at?: string;
         };
       };
       product_sizes: {
         Row: {
           id: string;
-          product_type_id: string;
+          product_id: string;
           name: string;
           servings: string | null;
           price: number;
-          active: boolean;
+          is_active: boolean;
+          sort_order: number;
           created_at: string;
         };
         Insert: {
           id?: string;
-          product_type_id: string;
+          product_id: string;
           name: string;
           servings?: string | null;
           price: number;
-          active?: boolean;
+          is_active?: boolean;
+          sort_order?: number;
           created_at?: string;
         };
         Update: {
           id?: string;
-          product_type_id?: string;
+          product_id?: string;
           name?: string;
           servings?: string | null;
           price?: number;
-          active?: boolean;
+          is_active?: boolean;
+          sort_order?: number;
           created_at?: string;
         };
       };
-      flavors: {
+      flavor_options: {
         Row: {
           id: string;
           name: string;
-          active: boolean;
+          type: "recheio" | "cobertura" | "ambos";
+          description: string | null;
+          is_active: boolean;
+          sort_order: number;
           created_at: string;
         };
         Insert: {
           id?: string;
           name: string;
-          active?: boolean;
+          type?: "recheio" | "cobertura" | "ambos";
+          description?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
           created_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
-          active?: boolean;
+          type?: "recheio" | "cobertura" | "ambos";
+          description?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
           created_at?: string;
         };
       };
-      fillings: {
+      product_flavors: {
         Row: {
           id: string;
-          name: string;
-          active: boolean;
-          created_at: string;
+          product_id: string;
+          flavor_option_id: string;
         };
         Insert: {
           id?: string;
-          name: string;
-          active?: boolean;
-          created_at?: string;
+          product_id: string;
+          flavor_option_id: string;
         };
         Update: {
           id?: string;
-          name?: string;
-          active?: boolean;
-          created_at?: string;
+          product_id?: string;
+          flavor_option_id?: string;
         };
       };
-      toppings: {
+      product_toppings: {
         Row: {
           id: string;
-          name: string;
-          active: boolean;
-          created_at: string;
+          product_id: string;
+          flavor_option_id: string;
         };
         Insert: {
           id?: string;
-          name: string;
-          active?: boolean;
-          created_at?: string;
+          product_id: string;
+          flavor_option_id: string;
         };
         Update: {
           id?: string;
-          name?: string;
-          active?: boolean;
-          created_at?: string;
+          product_id?: string;
+          flavor_option_id?: string;
         };
       };
       orders: {
@@ -126,66 +150,75 @@ export type Database = {
           id: string;
           customer_name: string;
           whatsapp: string;
-          product_type_id: string;
-          product_size_id: string;
-          flavor_id: string;
-          filling_id: string;
-          topping_id: string;
+          product_id: string | null;
+          product_size_id: string | null;
+          flavor_1_id: string | null;
+          flavor_2_id: string | null;
+          topping_1_id: string | null;
+          topping_2_id: string | null;
+          dough_type: "massa_branca" | "massa_chocolate" | null;
           theme: string | null;
           notes: string | null;
           delivery_date: string;
           delivery_time: string;
+          cep: string | null;
           street: string;
           number: string;
           district: string;
           city: string;
           reference: string | null;
           status: string;
-          total_price: number | null;
+          total_price: number;
           created_at: string;
         };
         Insert: {
           id?: string;
           customer_name: string;
           whatsapp: string;
-          product_type_id: string;
-          product_size_id: string;
-          flavor_id: string;
-          filling_id: string;
-          topping_id: string;
+          product_id?: string | null;
+          product_size_id?: string | null;
+          flavor_1_id?: string | null;
+          flavor_2_id?: string | null;
+          topping_1_id?: string | null;
+          topping_2_id?: string | null;
+          dough_type?: "massa_branca" | "massa_chocolate" | null;
           theme?: string | null;
           notes?: string | null;
           delivery_date: string;
           delivery_time: string;
+          cep?: string | null;
           street: string;
           number: string;
           district: string;
           city: string;
           reference?: string | null;
           status?: string;
-          total_price?: number | null;
+          total_price: number;
           created_at?: string;
         };
         Update: {
           id?: string;
           customer_name?: string;
           whatsapp?: string;
-          product_type_id?: string;
-          product_size_id?: string;
-          flavor_id?: string;
-          filling_id?: string;
-          topping_id?: string;
+          product_id?: string | null;
+          product_size_id?: string | null;
+          flavor_1_id?: string | null;
+          flavor_2_id?: string | null;
+          topping_1_id?: string | null;
+          topping_2_id?: string | null;
+          dough_type?: "massa_branca" | "massa_chocolate" | null;
           theme?: string | null;
           notes?: string | null;
           delivery_date?: string;
           delivery_time?: string;
+          cep?: string | null;
           street?: string;
           number?: string;
           district?: string;
           city?: string;
           reference?: string | null;
           status?: string;
-          total_price?: number | null;
+          total_price?: number;
           created_at?: string;
         };
       };

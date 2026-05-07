@@ -61,151 +61,110 @@ import {
 import type { OrderFormProps } from "./types";
 
 type OrderFormValues = {
-  customerName: string;
-  whatsapp: string;
-  productTypeId: string;
-  productSizeId: string;
-  flavorId: string;
-  fillingId: string;
-  toppingId: string;
-  doughType: "massa_branca" | "massa_chocolate";
-  theme: string;
-  notes: string;
-  deliveryDate: string;
-  deliveryTime: string;
-  street: string;
-  number: string;
-  district: string;
-  city: string;
-  reference: string;
-  cep: string;
-  wantsTheme: "nao" | "sim";
-  themeStyle: string;
+  customerName:     string;
+  whatsapp:         string;
+  productId:        string;
+  productSizeId:    string;
+  flavor1Id:        string;
+  flavor2Id:        string;
+  topping1Id:       string;
+  topping2Id:       string;
+  doughType:        "massa_branca" | "massa_chocolate";
+  theme:            string;
+  notes:            string;
+  deliveryDate:     string;
+  deliveryTime:     string;
+  street:           string;
+  number:           string;
+  district:         string;
+  city:             string;
+  reference:        string;
+  cep:              string;
+  wantsTheme:       "nao" | "sim";
+  themeStyle:       string;
   themeDescription: string;
 };
 
 const defaultValues: OrderFormValues = {
-  customerName: "",
-  whatsapp: "",
-  productTypeId: "",
-  productSizeId: "",
-  flavorId: "",
-  fillingId: "",
-  toppingId: "",
+  customerName: "", whatsapp: "",
+  productId: "", productSizeId: "",
+  flavor1Id: "", flavor2Id: "",
+  topping1Id: "", topping2Id: "",
   doughType: "massa_branca",
-  theme: "",
-  notes: "",
-  deliveryDate: "",
-  deliveryTime: "",
-  street: "",
-  number: "",
-  district: "",
-  city: "",
-  reference: "",
-  cep: "",
-  wantsTheme: "nao",
-  themeStyle: "",
-  themeDescription: "",
+  theme: "", notes: "",
+  deliveryDate: "", deliveryTime: "",
+  street: "", number: "", district: "", city: "",
+  reference: "", cep: "",
+  wantsTheme: "nao", themeStyle: "", themeDescription: "",
 };
 
-export function OrderForm({ options }: OrderFormProps) {
+export function OrderForm({ catalog }: OrderFormProps) {
   const router = useRouter();
-  const [submitError, setSubmitError] = useState("");
-  const [cepError, setCepError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
+  const [submitError,      setSubmitError]      = useState("");
+  const [cepError,         setCepError]         = useState("");
+  const [successMessage,   setSuccessMessage]   = useState("");
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
-  const [isLoadingCep, setIsLoadingCep] = useState(false);
-  const {
-    register,
-    watch,
-    setValue,
-    getValues,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<OrderFormValues>({
-    resolver: zodResolver(orderFormSchema),
-    defaultValues,
-  });
+  const [isLoadingCep,     setIsLoadingCep]     = useState(false);
 
-  const selectedProductTypeId = watch("productTypeId");
+  const {
+    register, watch, setValue, getValues, handleSubmit, reset,
+    formState: { errors },
+  } = useForm<OrderFormValues>({ resolver: zodResolver(orderFormSchema), defaultValues });
+
+  const selectedProductId   = watch("productId");
   const selectedProductSizeId = watch("productSizeId");
-  const wantsTheme = watch("wantsTheme");
-  const filteredSizes = options.productSizes.filter(
-    (size) => size.product_type_id === selectedProductTypeId,
-  );
-  const selectedSize = filteredSizes.find((size) => size.id === selectedProductSizeId);
-  const selectedProductType = options.productTypes.find(
-    (product) => product.id === selectedProductTypeId,
-  );
-  const selectedFlavor = options.flavors.find((flavor) => flavor.id === watch("flavorId"));
-  const selectedFilling = options.fillings.find((filling) => filling.id === watch("fillingId"));
-  const selectedTopping = options.toppings.find((topping) => topping.id === watch("toppingId"));
+  const wantsTheme          = watch("wantsTheme");
+
+  const selectedProduct = catalog.products.find((p) => p.id === selectedProductId);
+  const filteredSizes   = selectedProduct?.sizes.filter((s) => s.is_active) ?? [];
+  const selectedSize    = filteredSizes.find((s) => s.id === selectedProductSizeId);
+  const allowedFlavors  = selectedProduct?.allowed_flavors ?? [];
+  const allowedToppings = selectedProduct?.allowed_toppings ?? [];
+  const maxFlavors      = selectedProduct?.max_flavors ?? 1;
+  const maxToppings     = selectedProduct?.max_toppings ?? 1;
+  const hasDoughChoice  = selectedProduct?.allow_dough_choice ?? false;
+
+  const selectedFlavor1  = allowedFlavors.find((f) => f.id === watch("flavor1Id"));
+  const selectedFlavor2  = allowedFlavors.find((f) => f.id === watch("flavor2Id"));
+  const selectedTopping1 = allowedToppings.find((f) => f.id === watch("topping1Id"));
+  const selectedTopping2 = allowedToppings.find((f) => f.id === watch("topping2Id"));
   const selectedDoughType = watch("doughType");
-  const themeSummary =
-    wantsTheme === "sim"
-      ? [watch("themeStyle"), watch("themeDescription")].filter(Boolean).join(" - ") || "Com tema"
-      : "Sem tema";
-  const doughTypeLabel =
-    selectedDoughType === "massa_chocolate" ? "Massa de chocolate" : "Massa branca";
+
+  const doughTypeLabel = selectedDoughType === "massa_chocolate" ? "Massa de chocolate" : "Massa branca";
+  const themeSummary = wantsTheme === "sim"
+    ? [watch("themeStyle"), watch("themeDescription")].filter(Boolean).join(" - ") || "Com tema"
+    : "Sem tema";
+
+  const flavorsSummary = [selectedFlavor1?.name, selectedFlavor2?.name].filter(Boolean).join(" + ") || "A definir";
+  const toppingsSummary = [selectedTopping1?.name, selectedTopping2?.name].filter(Boolean).join(" + ") || "A definir";
 
   function formatCep(value: string) {
-    const digits = value.replace(/\D/g, "").slice(0, 8);
-
-    if (digits.length <= 5) {
-      return digits;
-    }
-
-    return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+    const d = value.replace(/\D/g, "").slice(0, 8);
+    return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d;
   }
 
   function formatWhatsApp(value: string) {
-    const digits = value.replace(/\D/g, "").slice(0, 11);
-
-    if (digits.length <= 2) {
-      return digits ? `(${digits}` : "";
-    }
-
-    if (digits.length <= 7) {
-      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
-    }
-
-    if (digits.length <= 10) {
-      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
-    }
-
-    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+    const d = value.replace(/\D/g, "").slice(0, 11);
+    if (d.length <= 2)  return d ? `(${d}` : "";
+    if (d.length <= 7)  return `(${d.slice(0,2)}) ${d.slice(2)}`;
+    if (d.length <= 10) return `(${d.slice(0,2)}) ${d.slice(2,6)}-${d.slice(6)}`;
+    return `(${d.slice(0,2)}) ${d.slice(2,7)}-${d.slice(7)}`;
   }
 
   async function handleCepLookup() {
     const cep = getValues("cep").replace(/\D/g, "");
-
-    if (cep.length !== 8) {
-      setCepError("Informe um CEP valido com 8 numeros.");
-      return;
-    }
-
+    if (cep.length !== 8) { setCepError("Informe um CEP válido com 8 números."); return; }
     setCepError("");
     setIsLoadingCep(true);
-
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const payload = (await response.json()) as {
-        erro?: boolean;
-        logradouro?: string;
-        bairro?: string;
-        localidade?: string;
-      };
-
-      if (!response.ok || payload.erro) {
-        throw new Error("Nao foi possivel localizar esse CEP.");
-      }
-
-      setValue("street", payload.logradouro ?? "", { shouldValidate: true });
-      setValue("district", payload.bairro ?? "", { shouldValidate: true });
-      setValue("city", payload.localidade ?? "", { shouldValidate: true });
-    } catch (error) {
-      setCepError(error instanceof Error ? error.message : "Falha ao buscar o CEP.");
+      const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const data = (await res.json()) as { erro?: boolean; logradouro?: string; bairro?: string; localidade?: string };
+      if (!res.ok || data.erro) throw new Error("CEP não encontrado.");
+      setValue("street",   data.logradouro ?? "", { shouldValidate: true });
+      setValue("district", data.bairro ?? "",     { shouldValidate: true });
+      setValue("city",     data.localidade ?? "", { shouldValidate: true });
+    } catch (e) {
+      setCepError(e instanceof Error ? e.message : "Falha ao buscar o CEP.");
     } finally {
       setIsLoadingCep(false);
     }
@@ -217,46 +176,23 @@ export function OrderForm({ options }: OrderFormProps) {
     setSuccessMessage("");
     setIsSubmittingForm(true);
 
-    const themeValue =
-      values.wantsTheme === "sim"
-        ? [values.themeStyle, values.themeDescription].filter(Boolean).join(" - ")
-        : "";
-    const notesValue = [
-      `Massa do bolo: ${values.doughType === "massa_chocolate" ? "Massa de chocolate" : "Massa branca"}`,
-      values.notes,
-    ]
-      .filter(Boolean)
-      .join("\n");
+    const themeValue = values.wantsTheme === "sim"
+      ? [values.themeStyle, values.themeDescription].filter(Boolean).join(" - ")
+      : "";
 
     try {
-      const response = await fetch("/api/orders", {
+      const res = await fetch("/api/orders", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...values,
-          theme: themeValue,
-          notes: notesValue,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...values, theme: themeValue }),
       });
-
-      const payload = (await response.json()) as { message?: string };
-
-      if (!response.ok) {
-        throw new Error(payload.message || "Nao foi possivel enviar o pedido.");
-      }
-
-      setSuccessMessage(
-        payload.message ||
-          "Pedido enviado com sucesso! A Dany Ruivo ira confirmar pelo WhatsApp.",
-      );
+      const payload = (await res.json()) as { message?: string };
+      if (!res.ok) throw new Error(payload.message ?? "Não foi possível enviar o pedido.");
+      setSuccessMessage(payload.message ?? "Pedido enviado com sucesso!");
       reset(defaultValues);
       router.refresh();
-    } catch (error) {
-      setSubmitError(
-        error instanceof Error ? error.message : "Nao foi possivel enviar o pedido.",
-      );
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : "Não foi possível enviar o pedido.");
     } finally {
       setIsSubmittingForm(false);
     }
@@ -269,225 +205,202 @@ export function OrderForm({ options }: OrderFormProps) {
         <MainColumn>
           <input type="hidden" {...register("wantsTheme")} />
 
+          {/* Passo 1 */}
           <Section>
             <SectionHeader>
               <StepIcon aria-hidden>1</StepIcon>
               <SectionHeading>
                 <StepLabel>Passo 1</StepLabel>
                 <SectionTitle>Seus dados</SectionTitle>
-                <SectionText>
-                  Comece com o basico para a equipe identificar seu pedido com rapidez.
-                </SectionText>
+                <SectionText>Comece com o básico para identificarmos seu pedido com rapidez.</SectionText>
               </SectionHeading>
             </SectionHeader>
-
             <Grid>
               <FieldShell>
                 <Label htmlFor="customerName">Nome</Label>
-                <Input
-                  id="customerName"
-                  placeholder="Seu nome completo"
-                  {...register("customerName")}
-                />
-                <FieldMessage>
-                  {errors.customerName ? <ErrorText>{errors.customerName.message}</ErrorText> : null}
-                </FieldMessage>
+                <Input id="customerName" placeholder="Seu nome completo" {...register("customerName")} />
+                <FieldMessage>{errors.customerName && <ErrorText>{errors.customerName.message}</ErrorText>}</FieldMessage>
               </FieldShell>
-
               <FieldShell>
                 <Label htmlFor="whatsapp">Telefone / WhatsApp</Label>
-                <Input
-                  id="whatsapp"
-                  placeholder="(88) 99999-9999"
-                  inputMode="numeric"
-                  maxLength={15}
+                <Input id="whatsapp" placeholder="(88) 99999-9999" inputMode="numeric" maxLength={15}
                   {...register("whatsapp", {
-                    onChange: (event) => {
-                      setValue("whatsapp", formatWhatsApp(event.target.value), {
-                        shouldValidate: true,
-                      });
-                    },
-                  })}
-                />
-                <FieldMessage>
-                  {errors.whatsapp ? <ErrorText>{errors.whatsapp.message}</ErrorText> : null}
-                </FieldMessage>
+                    onChange: (e) => setValue("whatsapp", formatWhatsApp(e.target.value), { shouldValidate: true }),
+                  })} />
+                <FieldMessage>{errors.whatsapp && <ErrorText>{errors.whatsapp.message}</ErrorText>}</FieldMessage>
               </FieldShell>
             </Grid>
           </Section>
 
+          {/* Passo 2 */}
           <Section>
             <SectionHeader>
               <StepIcon aria-hidden>2</StepIcon>
               <SectionHeading>
                 <StepLabel>Passo 2</StepLabel>
-                <SectionTitle>Bolo, tamanho e recheio</SectionTitle>
-                <SectionText>
-                  Escolha primeiro o tipo do produto, depois o tamanho, sabor,
-                  recheio e a cobertura base.
-                </SectionText>
+                <SectionTitle>Produto, tamanho e recheio</SectionTitle>
+                <SectionText>Escolha o produto, depois o tamanho, os sabores e a cobertura.</SectionText>
               </SectionHeading>
             </SectionHeader>
-
             <Grid>
               <FieldShell>
-                <Label htmlFor="productTypeId">Tipo de bolo ou torta</Label>
+                <Label htmlFor="productId">Tipo de bolo ou torta</Label>
                 <SelectWrap>
-                  <Select
-                    id="productTypeId"
-                    value={selectedProductTypeId}
-                    onChange={(event) => {
-                      setValue("productTypeId", event.target.value, { shouldValidate: true });
-                      setValue("productSizeId", "", { shouldValidate: true });
-                    }}
-                  >
+                  <Select id="productId" value={selectedProductId}
+                    onChange={(e) => {
+                      setValue("productId",      e.target.value, { shouldValidate: true });
+                      setValue("productSizeId",  "",             { shouldValidate: true });
+                      setValue("flavor1Id",      "",             { shouldValidate: true });
+                      setValue("flavor2Id",      "");
+                      setValue("topping1Id",     "");
+                      setValue("topping2Id",     "");
+                    }}>
                     <option value="">Selecione</option>
-                    {options.productTypes.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.name}
+                    {catalog.products.map((p) => (
+                      <option key={p.id} value={p.id}>{p.name}</option>
+                    ))}
+                  </Select>
+                </SelectWrap>
+                <FieldMessage>
+                  {errors.productId
+                    ? <ErrorText>{errors.productId.message}</ErrorText>
+                    : selectedProduct?.description
+                    ? <InlineMeta>{selectedProduct.description}</InlineMeta>
+                    : null}
+                </FieldMessage>
+              </FieldShell>
+
+              <FieldShell>
+                <Label htmlFor="productSizeId">Tamanho e preço</Label>
+                <SelectWrap>
+                  <Select id="productSizeId" value={selectedProductSizeId}
+                    onChange={(e) => setValue("productSizeId", e.target.value, { shouldValidate: true })}>
+                    <option value="">Selecione</option>
+                    {filteredSizes.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}{s.servings ? ` (${s.servings})` : ""} — {formatCurrencyBRL(s.price)}
                       </option>
                     ))}
                   </Select>
                 </SelectWrap>
                 <FieldMessage>
-                  {errors.productTypeId ? <ErrorText>{errors.productTypeId.message}</ErrorText> : null}
+                  {errors.productSizeId
+                    ? <ErrorText>{errors.productSizeId.message}</ErrorText>
+                    : !selectedProductId
+                    ? <InlineMeta>Escolha o produto para ver os tamanhos disponíveis.</InlineMeta>
+                    : <FieldMessage />}
                 </FieldMessage>
               </FieldShell>
 
-              <FieldShell>
-                <Label htmlFor="productSizeId">Tamanho e preco</Label>
-                <SelectWrap>
-                  <Select
-                    id="productSizeId"
-                    value={selectedProductSizeId}
-                    onChange={(event) =>
-                      setValue("productSizeId", event.target.value, { shouldValidate: true })
-                    }
-                  >
-                    <option value="">Selecione</option>
-                    {filteredSizes.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.name} - {formatCurrencyBRL(option.price)}
-                      </option>
-                    ))}
-                  </Select>
-                </SelectWrap>
-                {errors.productSizeId ? (
-                  <FieldMessage>
-                    <ErrorText>{errors.productSizeId.message}</ErrorText>
-                  </FieldMessage>
-                ) : !selectedProductTypeId ? (
-                  <FieldMessage>
-                    <InlineMeta>Escolha primeiro o tipo para liberar os tamanhos disponiveis.</InlineMeta>
-                  </FieldMessage>
-                ) : (
+              {/* Sabor 1 */}
+              {allowedFlavors.length > 0 && (
+                <FieldShell>
+                  <Label htmlFor="flavor1Id">
+                    {maxFlavors === 2 ? "1º Sabor / Recheio" : "Sabor / Recheio"}
+                  </Label>
+                  <SelectWrap>
+                    <Select id="flavor1Id" {...register("flavor1Id")}>
+                      <option value="">Selecione</option>
+                      {allowedFlavors.map((f) => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </Select>
+                  </SelectWrap>
+                  <FieldMessage>{errors.flavor1Id && <ErrorText>{errors.flavor1Id.message}</ErrorText>}</FieldMessage>
+                </FieldShell>
+              )}
+
+              {/* Sabor 2 (condicional) */}
+              {maxFlavors === 2 && allowedFlavors.length > 0 && (
+                <FieldShell>
+                  <Label htmlFor="flavor2Id">2º Sabor / Recheio</Label>
+                  <SelectWrap>
+                    <Select id="flavor2Id" {...register("flavor2Id")}>
+                      <option value="">Mesmo do 1º sabor</option>
+                      {allowedFlavors.map((f) => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </Select>
+                  </SelectWrap>
                   <FieldMessage />
-                )}
-              </FieldShell>
+                </FieldShell>
+              )}
 
-              <FieldShell>
-                <Label htmlFor="flavorId">Sabor</Label>
-                <SelectWrap>
-                  <Select id="flavorId" {...register("flavorId")}>
-                    <option value="">Selecione</option>
-                    {options.flavors.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </Select>
-                </SelectWrap>
-                <FieldMessage>
-                  {errors.flavorId ? <ErrorText>{errors.flavorId.message}</ErrorText> : null}
-                </FieldMessage>
-              </FieldShell>
+              {/* Cobertura 1 */}
+              {maxToppings >= 1 && allowedToppings.length > 0 && (
+                <FieldShell>
+                  <Label htmlFor="topping1Id">
+                    {maxToppings === 2 ? "1ª Cobertura / Estilo" : "Cobertura / Estilo"}
+                  </Label>
+                  <SelectWrap>
+                    <Select id="topping1Id" {...register("topping1Id")}>
+                      <option value="">Selecione</option>
+                      {allowedToppings.map((f) => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </Select>
+                  </SelectWrap>
+                  <FieldMessage />
+                </FieldShell>
+              )}
 
-              <FieldShell>
-                <Label htmlFor="fillingId">Recheio</Label>
-                <SelectWrap>
-                  <Select id="fillingId" {...register("fillingId")}>
-                    <option value="">Selecione</option>
-                    {options.fillings.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </Select>
-                </SelectWrap>
-                <FieldMessage>
-                  {errors.fillingId ? <ErrorText>{errors.fillingId.message}</ErrorText> : null}
-                </FieldMessage>
-              </FieldShell>
+              {/* Cobertura 2 (condicional) */}
+              {maxToppings === 2 && allowedToppings.length > 0 && (
+                <FieldShell>
+                  <Label htmlFor="topping2Id">2ª Cobertura / Estilo</Label>
+                  <SelectWrap>
+                    <Select id="topping2Id" {...register("topping2Id")}>
+                      <option value="">Sem 2ª cobertura</option>
+                      {allowedToppings.map((f) => (
+                        <option key={f.id} value={f.id}>{f.name}</option>
+                      ))}
+                    </Select>
+                  </SelectWrap>
+                  <FieldMessage />
+                </FieldShell>
+              )}
 
-              <FieldShell>
-                <Label htmlFor="toppingId">Cobertura</Label>
-                <SelectWrap>
-                  <Select id="toppingId" {...register("toppingId")}>
-                    <option value="">Selecione</option>
-                    {options.toppings.map((option) => (
-                      <option key={option.id} value={option.id}>
-                        {option.name}
-                      </option>
-                    ))}
-                  </Select>
-                </SelectWrap>
-                <FieldMessage>
-                  {errors.toppingId ? <ErrorText>{errors.toppingId.message}</ErrorText> : null}
-                </FieldMessage>
-              </FieldShell>
-
-              <FieldShell>
-                <Label htmlFor="doughType">Massa do bolo</Label>
-                <SelectWrap>
-                  <Select id="doughType" {...register("doughType")}>
-                    <option value="massa_branca">Massa branca</option>
-                    <option value="massa_chocolate">Massa de chocolate</option>
-                  </Select>
-                </SelectWrap>
-                <FieldMessage />
-              </FieldShell>
+              {/* Massa (condicional) */}
+              {hasDoughChoice && (
+                <FieldShell>
+                  <Label htmlFor="doughType">Massa do bolo</Label>
+                  <SelectWrap>
+                    <Select id="doughType" {...register("doughType")}>
+                      <option value="massa_branca">Massa branca</option>
+                      <option value="massa_chocolate">Massa de chocolate</option>
+                    </Select>
+                  </SelectWrap>
+                  <FieldMessage />
+                </FieldShell>
+              )}
             </Grid>
           </Section>
 
+          {/* Passo 3 */}
           <Section>
             <SectionHeader>
               <StepIcon aria-hidden>3</StepIcon>
               <SectionHeading>
                 <StepLabel>Passo 3</StepLabel>
                 <SectionTitle>Tema e acabamento</SectionTitle>
-                <SectionText>
-                  Se desejar um tema personalizado, o estilo dele fica definido aqui,
-                  separado da cobertura do bolo.
-                </SectionText>
+                <SectionText>Se desejar um tema personalizado, defina o estilo e a descrição aqui.</SectionText>
               </SectionHeading>
             </SectionHeader>
-
             <Grid>
               <FullWidth>
                 <FieldShell>
                   <Label>Quer incluir tema?</Label>
                   <RadioGrid>
-                    <RadioCard
-                      type="button"
-                      $active={wantsTheme === "nao"}
-                      onClick={() => {
-                        setValue("wantsTheme", "nao");
-                        setValue("themeStyle", "");
-                        setValue("themeDescription", "");
-                      }}
-                    >
+                    <RadioCard type="button" $active={wantsTheme === "nao"}
+                      onClick={() => { setValue("wantsTheme", "nao"); setValue("themeStyle", ""); setValue("themeDescription", ""); }}>
                       <RadioDot $active={wantsTheme === "nao"} />
                       <RadioContent>
-                        <RadioTitle>Nao, quero algo mais classico</RadioTitle>
+                        <RadioTitle>Não, quero algo mais clássico</RadioTitle>
                         <RadioText>Sem tema personalizado.</RadioText>
                       </RadioContent>
                     </RadioCard>
-
-                    <RadioCard
-                      type="button"
-                      $active={wantsTheme === "sim"}
-                      onClick={() => setValue("wantsTheme", "sim")}
-                    >
+                    <RadioCard type="button" $active={wantsTheme === "sim"}
+                      onClick={() => setValue("wantsTheme", "sim")}>
                       <RadioDot $active={wantsTheme === "sim"} />
                       <RadioContent>
                         <RadioTitle>Sim, quero tema</RadioTitle>
@@ -498,146 +411,101 @@ export function OrderForm({ options }: OrderFormProps) {
                 </FieldShell>
               </FullWidth>
 
-              {wantsTheme === "sim" ? (
+              {wantsTheme === "sim" && (
                 <>
                   <FieldShell>
                     <Label htmlFor="themeStyle">Estilo do tema</Label>
-                    <Input
-                      id="themeStyle"
-                      placeholder="Ex.: floral delicado, papel fotografico, 3D"
-                      {...register("themeStyle")}
-                    />
-                    <InlineMeta>
-                      Use este campo para explicar a linguagem visual do tema.
-                    </InlineMeta>
+                    <Input id="themeStyle" placeholder="Ex.: floral delicado, papel fotográfico, 3D" {...register("themeStyle")} />
+                    <InlineMeta>Use este campo para explicar a linguagem visual do tema.</InlineMeta>
                   </FieldShell>
-
                   <FieldShell>
-                    <Label htmlFor="themeDescription">Descricao do tema</Label>
-                    <Textarea
-                      id="themeDescription"
-                      placeholder="Ex.: nome da aniversariante, paleta de cores e referencias."
-                      {...register("themeDescription")}
-                    />
+                    <Label htmlFor="themeDescription">Descrição do tema</Label>
+                    <Textarea id="themeDescription"
+                      placeholder="Ex.: nome da aniversariante, paleta de cores e referências."
+                      {...register("themeDescription")} />
                   </FieldShell>
                 </>
-              ) : null}
+              )}
 
               <FullWidth>
                 <FieldShell>
-                  <Label htmlFor="notes">Observacoes gerais</Label>
-                  <Textarea
-                    id="notes"
-                    rows={3}
-                    placeholder="Ex.: menos doce, sem frutas, entrega em condominio, observacoes extras."
-                    {...register("notes")}
-                  />
+                  <Label htmlFor="notes">Observações gerais</Label>
+                  <Textarea id="notes" rows={3}
+                    placeholder="Ex.: menos doce, sem frutas, entrega em condomínio, observações extras."
+                    {...register("notes")} />
                 </FieldShell>
               </FullWidth>
             </Grid>
           </Section>
 
+          {/* Passo 4 */}
           <Section>
             <SectionHeader>
               <StepIcon aria-hidden>4</StepIcon>
               <SectionHeading>
                 <StepLabel>Passo 4</StepLabel>
                 <SectionTitle>Entrega</SectionTitle>
-                <SectionText>
-                  Informe data e horario desejados. O CEP pode ajudar a preencher parte do endereco.
-                </SectionText>
+                <SectionText>Informe data, horário e endereço. O CEP pode preencher parte do endereço automaticamente.</SectionText>
               </SectionHeading>
             </SectionHeader>
-
             <Grid>
               <FieldShell>
                 <Label htmlFor="deliveryDate">Data de entrega</Label>
                 <Input id="deliveryDate" type="date" {...register("deliveryDate")} />
-                <FieldMessage>
-                  {errors.deliveryDate ? <ErrorText>{errors.deliveryDate.message}</ErrorText> : null}
-                </FieldMessage>
+                <FieldMessage>{errors.deliveryDate && <ErrorText>{errors.deliveryDate.message}</ErrorText>}</FieldMessage>
               </FieldShell>
 
               <FieldShell>
                 <Label htmlFor="deliveryTime">Hora de entrega</Label>
                 <Input id="deliveryTime" type="time" {...register("deliveryTime")} />
-                <FieldMessage>
-                  {errors.deliveryTime ? <ErrorText>{errors.deliveryTime.message}</ErrorText> : null}
-                </FieldMessage>
+                <FieldMessage>{errors.deliveryTime && <ErrorText>{errors.deliveryTime.message}</ErrorText>}</FieldMessage>
               </FieldShell>
 
               <FullWidth>
                 <FieldShell>
                   <Label htmlFor="cep">CEP</Label>
                   <CepRow>
-                    <Input
-                      id="cep"
-                      placeholder="00000-000"
-                      inputMode="numeric"
-                      maxLength={9}
+                    <Input id="cep" placeholder="00000-000" inputMode="numeric" maxLength={9}
                       {...register("cep", {
-                        onChange: (event) => {
-                          setCepError("");
-                          setValue("cep", formatCep(event.target.value), {
-                            shouldValidate: true,
-                          });
-                        },
-                      })}
-                    />
-                    <SearchButton
-                      type="button"
-                      onClick={handleCepLookup}
-                      disabled={isLoadingCep}
-                    >
+                        onChange: (e) => { setCepError(""); setValue("cep", formatCep(e.target.value), { shouldValidate: true }); },
+                      })} />
+                    <SearchButton type="button" onClick={handleCepLookup} disabled={isLoadingCep}>
                       {isLoadingCep ? "Buscando..." : "Buscar"}
                     </SearchButton>
                   </CepRow>
-                  <FieldMessage>
-                    {cepError ? <ErrorText>{cepError}</ErrorText> : null}
-                  </FieldMessage>
+                  <FieldMessage>{cepError && <ErrorText>{cepError}</ErrorText>}</FieldMessage>
                 </FieldShell>
               </FullWidth>
 
               <FieldShell>
                 <Label htmlFor="street">Rua</Label>
                 <Input id="street" {...register("street")} />
-                <FieldMessage>
-                  {errors.street ? <ErrorText>{errors.street.message}</ErrorText> : null}
-                </FieldMessage>
+                <FieldMessage>{errors.street && <ErrorText>{errors.street.message}</ErrorText>}</FieldMessage>
               </FieldShell>
 
               <FieldShell>
-                <Label htmlFor="number">Numero</Label>
+                <Label htmlFor="number">Número</Label>
                 <Input id="number" {...register("number")} />
-                <FieldMessage>
-                  {errors.number ? <ErrorText>{errors.number.message}</ErrorText> : null}
-                </FieldMessage>
+                <FieldMessage>{errors.number && <ErrorText>{errors.number.message}</ErrorText>}</FieldMessage>
               </FieldShell>
 
               <FieldShell>
                 <Label htmlFor="district">Bairro</Label>
                 <Input id="district" {...register("district")} />
-                <FieldMessage>
-                  {errors.district ? <ErrorText>{errors.district.message}</ErrorText> : null}
-                </FieldMessage>
+                <FieldMessage>{errors.district && <ErrorText>{errors.district.message}</ErrorText>}</FieldMessage>
               </FieldShell>
 
               <FieldShell>
                 <Label htmlFor="city">Cidade</Label>
                 <Input id="city" {...register("city")} />
-                <FieldMessage>
-                  {errors.city ? <ErrorText>{errors.city.message}</ErrorText> : null}
-                </FieldMessage>
+                <FieldMessage>{errors.city && <ErrorText>{errors.city.message}</ErrorText>}</FieldMessage>
               </FieldShell>
 
               <FullWidth>
                 <FieldShell>
-                  <Label htmlFor="reference">Ponto de referencia</Label>
-                  <Input
-                    id="reference"
-                    placeholder="Ex.: proximo a pracinha, bloco B, casa de esquina."
-                    {...register("reference")}
-                  />
+                  <Label htmlFor="reference">Ponto de referência</Label>
+                  <Input id="reference" placeholder="Ex.: próximo à pracinha, bloco B, casa de esquina."
+                    {...register("reference")} />
                 </FieldShell>
               </FullWidth>
             </Grid>
@@ -646,13 +514,12 @@ export function OrderForm({ options }: OrderFormProps) {
           <NotesCard>
             <NotesTitle>Antes de enviar</NotesTitle>
             <NotesList>
-              {BUSINESS_NOTES.map((note) => (
-                <li key={note}>{note}</li>
-              ))}
+              {BUSINESS_NOTES.map((note) => <li key={note}>{note}</li>)}
             </NotesList>
           </NotesCard>
         </MainColumn>
 
+        {/* Sidebar de resumo */}
         <Aside>
           <SummaryCard>
             <div>
@@ -663,28 +530,28 @@ export function OrderForm({ options }: OrderFormProps) {
             <SummaryList>
               <SummaryRow>
                 <SummaryTerm>Produto</SummaryTerm>
-                <SummaryDescription>{selectedProductType?.name ?? "A definir"}</SummaryDescription>
+                <SummaryDescription>{selectedProduct?.name ?? "A definir"}</SummaryDescription>
               </SummaryRow>
               <SummaryRow>
                 <SummaryTerm>Tamanho</SummaryTerm>
                 <SummaryDescription>{selectedSize?.name ?? "A definir"}</SummaryDescription>
               </SummaryRow>
               <SummaryRow>
-                <SummaryTerm>Sabor</SummaryTerm>
-                <SummaryDescription>{selectedFlavor?.name ?? "A definir"}</SummaryDescription>
+                <SummaryTerm>{maxFlavors === 2 ? "Recheios" : "Recheio"}</SummaryTerm>
+                <SummaryDescription>{flavorsSummary}</SummaryDescription>
               </SummaryRow>
-              <SummaryRow>
-                <SummaryTerm>Recheio</SummaryTerm>
-                <SummaryDescription>{selectedFilling?.name ?? "A definir"}</SummaryDescription>
-              </SummaryRow>
-              <SummaryRow>
-                <SummaryTerm>Cobertura</SummaryTerm>
-                <SummaryDescription>{selectedTopping?.name ?? "A definir"}</SummaryDescription>
-              </SummaryRow>
-              <SummaryRow>
-                <SummaryTerm>Massa</SummaryTerm>
-                <SummaryDescription>{doughTypeLabel}</SummaryDescription>
-              </SummaryRow>
+              {maxToppings > 0 && (
+                <SummaryRow>
+                  <SummaryTerm>{maxToppings === 2 ? "Coberturas" : "Cobertura"}</SummaryTerm>
+                  <SummaryDescription>{toppingsSummary}</SummaryDescription>
+                </SummaryRow>
+              )}
+              {hasDoughChoice && (
+                <SummaryRow>
+                  <SummaryTerm>Massa</SummaryTerm>
+                  <SummaryDescription>{doughTypeLabel}</SummaryDescription>
+                </SummaryRow>
+              )}
               <SummaryRow>
                 <SummaryTerm>Tema</SummaryTerm>
                 <SummaryDescription>{themeSummary}</SummaryDescription>
@@ -694,30 +561,30 @@ export function OrderForm({ options }: OrderFormProps) {
             <PriceBox>
               <PriceLabel>Valor estimado</PriceLabel>
               <PriceValue>{formatCurrencyBRL(selectedSize?.price)}</PriceValue>
-              <PriceText>Valor base. Ajustes finais sao combinados no WhatsApp.</PriceText>
+              <PriceText>Valor base. Ajustes finais são combinados no WhatsApp.</PriceText>
             </PriceBox>
 
             <PrimaryButton type="submit" disabled={isSubmittingForm}>
-              {isSubmittingForm ? "Enviando pedido..." : "Enviar solicitacao"}
+              {isSubmittingForm ? "Enviando pedido..." : "Enviar solicitação"}
             </PrimaryButton>
 
             <SummaryFootnote>
-              Voce sera direcionado(a) ao WhatsApp da confeitaria para a confirmacao final.
+              Você será direcionado(a) ao WhatsApp da confeitaria para a confirmação final.
             </SummaryFootnote>
 
-            {submitError ? <ErrorText>{submitError}</ErrorText> : null}
+            {submitError && <ErrorText>{submitError}</ErrorText>}
 
-            {successMessage ? (
+            {successMessage && (
               <FeedbackCard>
                 <FeedbackText>{successMessage}</FeedbackText>
                 <WhatsAppButton
                   href={buildStoreWhatsAppLink(
-                    "Ola! Acabei de enviar meu pedido pelo site da Dany Ruivo e gostaria de acompanhar a confirmacao.",
+                    "Olá! Acabei de enviar meu pedido pelo site da Dany Ruivo e gostaria de acompanhar a confirmação.",
                   )}
                   label="Chamar a loja no WhatsApp"
                 />
               </FeedbackCard>
-            ) : null}
+            )}
           </SummaryCard>
         </Aside>
       </Shell>
