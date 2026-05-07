@@ -37,7 +37,7 @@ export function HomeView({ catalog }: HomeViewProps) {
           <HeroContent>
             <HeroLogoWrap>
               <HeroLogoFrame>
-                <Logo size={168} priority />
+                <Logo size={120} priority />
               </HeroLogoFrame>
             </HeroLogoWrap>
             <HeroTitle>Dany Ruivo</HeroTitle>

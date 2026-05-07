@@ -31,6 +31,7 @@ export type AdminOrder = {
   flavor_1: FlavorRef;
   flavor_2: FlavorRef;
   topping_1: FlavorRef;
+  topping_flavor_1: FlavorRef;
   topping_2: FlavorRef;
   decoration_style: DecorationStyleRef;
 };

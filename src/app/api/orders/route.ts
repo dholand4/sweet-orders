@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
     const themeValue =
       parsed.wantsTheme === "sim"
-        ? [parsed.themeStyle, parsed.themeDescription].filter(Boolean).join(" - ")
+        ? parsed.themeDescription || null
         : parsed.theme || null;
 
     const { error } = await supabase.from("orders").insert({
@@ -56,6 +56,7 @@ export async function POST(request: Request) {
       flavor_1_id:         parsed.flavor1Id || null,
       flavor_2_id:         parsed.flavor2Id || null,
       topping_1_id:        parsed.topping1Id || null,
+      topping_flavor_1_id: parsed.toppingFlavor1Id || null,
       topping_2_id:        parsed.topping2Id || null,
       decoration_style_id: parsed.decorationStyleId || null,
       dough_type:          parsed.doughType ?? null,

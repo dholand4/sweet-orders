@@ -168,6 +168,7 @@ export type Database = {
           flavor_1_id: string | null;
           flavor_2_id: string | null;
           topping_1_id: string | null;
+          topping_flavor_1_id: string | null;
           topping_2_id: string | null;
           decoration_style_id: string | null;
           dough_type: "massa_branca" | "massa_chocolate" | null;
@@ -194,6 +195,7 @@ export type Database = {
           flavor_1_id?: string | null;
           flavor_2_id?: string | null;
           topping_1_id?: string | null;
+          topping_flavor_1_id?: string | null;
           topping_2_id?: string | null;
           decoration_style_id?: string | null;
           dough_type?: "massa_branca" | "massa_chocolate" | null;
@@ -220,6 +222,7 @@ export type Database = {
           flavor_1_id?: string | null;
           flavor_2_id?: string | null;
           topping_1_id?: string | null;
+          topping_flavor_1_id?: string | null;
           topping_2_id?: string | null;
           decoration_style_id?: string | null;
           dough_type?: "massa_branca" | "massa_chocolate" | null;

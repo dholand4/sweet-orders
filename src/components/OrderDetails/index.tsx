@@ -36,6 +36,8 @@ export function OrderDetails({ order }: OrderDetailsProps) {
     .filter(Boolean)
     .join(" + ") || "-";
 
+  const toppingFlavorLine = order.topping_flavor_1?.name ?? null;
+
   return (
     <DetailsShell>
       <DetailsTitle>{order.customer_name}</DetailsTitle>
@@ -63,6 +65,12 @@ export function OrderDetails({ order }: OrderDetailsProps) {
           <DetailLabel>Cobertura</DetailLabel>
           <DetailValue>{toppingsLine}</DetailValue>
         </DetailItem>
+        {toppingFlavorLine && (
+          <DetailItem>
+            <DetailLabel>Sabor da cobertura</DetailLabel>
+            <DetailValue>{toppingFlavorLine}</DetailValue>
+          </DetailItem>
+        )}
         {order.decoration_style && (
           <DetailItem>
             <DetailLabel>Estilo decorativo</DetailLabel>

@@ -14,9 +14,8 @@ export const PageShell = styled.main`
   --muted: #9a6a79;
   --line: #f0c9d5;
   --cream: #fff8fa;
-  --gold-soft: #ecd3a1;
-  --shadow-soft: 0 12px 30px -12px rgba(141, 41, 64, 0.24);
-  --shadow-card: 0 24px 56px -30px rgba(141, 41, 64, 0.28);
+  --shadow-soft: 0 8px 24px -8px rgba(141, 41, 64, 0.18);
+  --shadow-card: 0 16px 40px -20px rgba(141, 41, 64, 0.22);
   min-height: 100vh;
   width: 100%;
   overflow-x: clip;
@@ -29,29 +28,30 @@ export const Hero = styled.header`
   overflow: hidden;
   width: 100%;
   background:
-    radial-gradient(circle at top center, rgba(255, 255, 255, 0.28), transparent 30%),
-    linear-gradient(135deg, #f7ccd8 0%, #e796ad 48%, #8d2940 100%);
+    radial-gradient(ellipse at top center, rgba(255,255,255,0.22) 0%, transparent 55%),
+    linear-gradient(150deg, #f2bfce 0%, #e08aa5 40%, #92324f 100%);
   color: #fff;
 `;
 
 export const HeroGlow = styled.div`
   position: absolute;
   inset: 0;
-  opacity: 0.2;
-  background: radial-gradient(circle at 20% 20%, #fff, transparent 50%);
+  opacity: 0.15;
+  background: radial-gradient(circle at 15% 15%, #fff, transparent 50%);
+  pointer-events: none;
 `;
 
 export const HeroContainer = styled(Container)`
   position: relative;
   display: grid;
-  gap: ${({ theme }) => theme.space[4]};
-  padding-top: 56px;
-  padding-bottom: 112px;
+  gap: ${({ theme }) => theme.space[3]};
+  padding-top: 36px;
+  padding-bottom: 80px;
   padding-inline: clamp(20px, 3vw, 40px);
   text-align: center;
 
   ${media.md} {
-    padding-bottom: 144px;
+    padding-bottom: 100px;
   }
 `;
 
@@ -63,43 +63,24 @@ export const HeroTopBar = styled.div`
   flex-wrap: wrap;
 `;
 
-export const HeroBadge = styled.span`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: ${({ theme }) => theme.space[2]};
-  justify-self: center;
-  margin-inline: auto;
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(8px);
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
-`;
-
 export const AdminLink = styled(Link)`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 ${({ theme }) => theme.space[4]};
+  min-height: 36px;
+  padding: 0 ${({ theme }) => theme.space[3]};
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  background: rgba(255, 255, 255, 0.14);
+  color: rgba(255,255,255,0.9);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  letter-spacing: 0.02em;
   transition: transform 0.2s ease, background 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    background: rgba(255, 255, 255, 0.24);
-  }
-
-  &:focus-visible {
-    outline: 2px solid rgba(255, 255, 255, 0.9);
-    outline-offset: 3px;
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.22);
   }
 `;
 
@@ -111,57 +92,59 @@ export const HeroContent = styled.div`
 export const HeroLogoWrap = styled.div`
   display: flex;
   justify-content: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 `;
 
 export const HeroLogoFrame = styled.div`
   display: grid;
   place-items: center;
-  padding: 14px;
-  border-radius: 32px;
-  background: linear-gradient(180deg, rgba(255, 248, 250, 0.92), rgba(249, 223, 230, 0.82));
+  padding: 10px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255, 248, 250, 0.90), rgba(249, 220, 228, 0.78));
   box-shadow:
-    0 18px 40px -24px rgba(110, 36, 57, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    0 12px 28px -16px rgba(110, 36, 57, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.38);
   backdrop-filter: blur(6px);
 `;
 
 export const HeroTitle = styled.h1`
   margin: 0;
   font-family: var(--font-heading), serif;
-  font-size: clamp(2.75rem, 4vw + 1.75rem, 4.5rem);
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
-  line-height: 1.05;
-  text-shadow: 0 10px 24px rgba(110, 36, 57, 0.16);
+  font-size: clamp(2rem, 3vw + 1rem, 3rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-shadow: 0 6px 16px rgba(110, 36, 57, 0.18);
 `;
 
 export const HeroSubtitle = styled.p`
-  max-width: 640px;
+  max-width: 520px;
   margin: 0 auto;
-  opacity: 0.92;
-  font-size: ${({ theme }) => theme.fontSizes.base};
+  opacity: 0.88;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
   line-height: ${({ theme }) => theme.lineHeights.relaxed};
 
   ${media.md} {
-    font-size: ${({ theme }) => theme.fontSizes.lg};
+    font-size: ${({ theme }) => theme.fontSizes.base};
   }
 `;
 
 export const ContentWrap = styled(Container)`
   position: relative;
   z-index: 1;
-  margin-top: -96px;
+  margin-top: -64px;
   width: 100%;
 
   ${media.md} {
-    margin-top: -112px;
+    margin-top: -76px;
   }
 `;
 
 export const Footer = styled.footer`
   width: 100%;
-  padding: 48px 16px 40px;
+  padding: 40px 16px 32px;
   text-align: center;
   color: var(--muted);
   font-size: ${({ theme }) => theme.fontSizes.xs};
+  letter-spacing: 0.01em;
 `;

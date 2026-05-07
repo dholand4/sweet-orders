@@ -1,11 +1,6 @@
 import type { AdminOrder } from "@/@types/orders";
 import { createSupabaseServerClient } from "@/lib/supabase";
 
-function unwrap<T>(value: T | T[] | null): T | null {
-  if (Array.isArray(value)) return value[0] ?? null;
-  return value ?? null;
-}
-
 export async function getOrders(status?: string): Promise<AdminOrder[]> {
   const supabase = createSupabaseServerClient();
 
@@ -17,7 +12,8 @@ export async function getOrders(status?: string): Promise<AdminOrder[]> {
       street, number, district, city, reference,
       dough_type, status, total_price, created_at,
       product_id, product_size_id,
-      flavor_1_id, flavor_2_id, topping_1_id, topping_2_id,
+      flavor_1_id, flavor_2_id,
+      topping_1_id, topping_flavor_1_id, topping_2_id,
       decoration_style_id
     `)
     .order("created_at", { ascending: false });
@@ -34,13 +30,14 @@ export async function getOrders(status?: string): Promise<AdminOrder[]> {
 
   if (!rows || rows.length === 0) return [];
 
-  const productIds  = [...new Set(rows.map((r) => r.product_id).filter(Boolean))];
-  const sizeIds     = [...new Set(rows.map((r) => r.product_size_id).filter(Boolean))];
-  const decoIds     = [...new Set(rows.map((r) => r.decoration_style_id).filter(Boolean))];
-  const flavorIds   = [...new Set([
+  const productIds = [...new Set(rows.map((r) => r.product_id).filter(Boolean))];
+  const sizeIds    = [...new Set(rows.map((r) => r.product_size_id).filter(Boolean))];
+  const decoIds    = [...new Set(rows.map((r) => r.decoration_style_id).filter(Boolean))];
+  const flavorIds  = [...new Set([
     ...rows.map((r) => r.flavor_1_id),
     ...rows.map((r) => r.flavor_2_id),
     ...rows.map((r) => r.topping_1_id),
+    ...rows.map((r) => r.topping_flavor_1_id),
     ...rows.map((r) => r.topping_2_id),
   ].filter(Boolean))];
 
@@ -67,13 +64,14 @@ export async function getOrders(status?: string): Promise<AdminOrder[]> {
   return rows.map((item) => ({
     ...item,
     total_price:      Number(item.total_price),
-    product:          item.product_id          ? pMap[item.product_id]          ?? null : null,
-    product_size:     item.product_size_id     ? sMap[item.product_size_id]     ?? null : null,
-    flavor_1:         item.flavor_1_id         ? fMap[item.flavor_1_id]         ?? null : null,
-    flavor_2:         item.flavor_2_id         ? fMap[item.flavor_2_id]         ?? null : null,
-    topping_1:        item.topping_1_id        ? fMap[item.topping_1_id]        ?? null : null,
-    topping_2:        item.topping_2_id        ? fMap[item.topping_2_id]        ?? null : null,
-    decoration_style: item.decoration_style_id ? dMap[item.decoration_style_id] ?? null : null,
+    product:          item.product_id           ? pMap[item.product_id]           ?? null : null,
+    product_size:     item.product_size_id      ? sMap[item.product_size_id]      ?? null : null,
+    flavor_1:         item.flavor_1_id          ? fMap[item.flavor_1_id]          ?? null : null,
+    flavor_2:         item.flavor_2_id          ? fMap[item.flavor_2_id]          ?? null : null,
+    topping_1:        item.topping_1_id         ? fMap[item.topping_1_id]         ?? null : null,
+    topping_flavor_1: item.topping_flavor_1_id  ? fMap[item.topping_flavor_1_id]  ?? null : null,
+    topping_2:        item.topping_2_id         ? fMap[item.topping_2_id]         ?? null : null,
+    decoration_style: item.decoration_style_id  ? dMap[item.decoration_style_id]  ?? null : null,
   })) as AdminOrder[];
 }
 
