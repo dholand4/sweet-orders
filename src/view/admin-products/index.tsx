@@ -254,6 +254,17 @@ const SectionLabel = styled.h3`
   letter-spacing: 0.05em;
 `;
 
+const InfoNote = styled.p`
+  margin: 0;
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: ${({ theme }) => theme.colors.textMuted};
+  padding: 10px 14px;
+  background: ${({ theme }) => theme.colors.bgSecondary};
+  border-radius: ${({ theme }) => theme.radii.md};
+  border-left: 3px solid ${({ theme }) => theme.colors.primary};
+  line-height: 1.5;
+`;
+
 const FieldGroup = styled.div`display: flex; flex-direction: column; gap: 6px;`;
 
 const FieldRow = styled.div`
@@ -481,8 +492,7 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const flavorsForRecheio   = allFlavors.filter((f) => f.type !== "cobertura");
-  const flavorsForCobertura = allFlavors.filter((f) => f.type !== "recheio");
+  const flavorsForRecheio = allFlavors.filter((f) => f.type !== "cobertura");
 
   function openCreate() {
     setForm(emptyProduct());
@@ -525,15 +535,6 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
     }));
   }
 
-  function toggleToppingId(id: string) {
-    setForm((f) => ({
-      ...f,
-      topping_ids: f.topping_ids.includes(id)
-        ? f.topping_ids.filter((tid) => tid !== id)
-        : [...f.topping_ids, id],
-    }));
-  }
-
   function toggleDecoStyleId(id: string) {
     setForm((f) => ({
       ...f,
@@ -548,23 +549,68 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
     setSaving(true);
     setError("");
     try {
-      const body = {
-        ...form,
-        sizes: form.sizes.map((s, i) => ({
-          ...s,
-          price:      parseFloat(s.price) || 0,
-          sort_order: i,
-        })),
-      };
+      const parsedSizes = form.sizes.map((s, i) => ({
+        ...s,
+        price:      parseFloat(s.price) || 0,
+        sort_order: i,
+      }));
       const res = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...form, sizes: parsedSizes }),
       });
-      const payload = (await res.json()) as { message?: string };
+      const payload = (await res.json()) as { message?: string; id?: string };
       if (!res.ok) throw new Error(payload.message ?? "Erro ao salvar.");
+
+      const savedId = payload.id ?? form.id!;
+
+      // Rebuild product locally so the list reflects changes immediately
+      const savedFlavors = allFlavors.filter(
+        (f) => form.flavor_ids.includes(f.id) && f.type !== "cobertura",
+      );
+      const savedDecos = allDecoStyles.filter((d) =>
+        form.decoration_style_ids.includes(d.id),
+      );
+      const activeCoberturas = allFlavors.filter(
+        (f) => f.type !== "recheio" && f.is_active,
+      );
+      const builtSizes = parsedSizes.map((s, i) => ({
+        id:         s.id ?? `tmp-${i}`,
+        product_id: savedId,
+        name:       s.name,
+        servings:   s.servings || null,
+        price:      s.price as number,
+        is_active:  s.is_active,
+        sort_order: i,
+        created_at: new Date().toISOString(),
+      }));
+
+      const updated: ProductWithDetails = {
+        id:                 savedId,
+        name:               form.name,
+        type:               form.type,
+        description:        form.description || null,
+        image_url:          form.image_url || null,
+        max_flavors:        form.max_flavors,
+        max_toppings:       form.max_toppings,
+        allow_dough_choice: form.allow_dough_choice,
+        is_active:          form.is_active,
+        sort_order:         form.sort_order,
+        created_at:         products.find((p) => p.id === form.id)?.created_at ?? new Date().toISOString(),
+        sizes:              builtSizes,
+        allowed_flavors:    savedFlavors,
+        allowed_toppings:   form.max_toppings > 0 ? activeCoberturas : [],
+        allowed_decoration_styles: savedDecos,
+      };
+
+      setProducts((prev) =>
+        form.id
+          ? prev.map((p) => (p.id === form.id ? updated : p))
+          : [...prev, updated],
+      );
+
       setDrawerOpen(false);
-      router.refresh();
+      router.refresh(); // background sync for consistency
     } catch (e) {
       setError(e instanceof Error ? e.message : "Erro ao salvar.");
     } finally {
@@ -763,19 +809,15 @@ export function ProductsView({ products: initialProducts, allFlavors, allDecoSty
                 </CheckGrid>
               </SectionDivider>
 
-              {/* Coberturas (creme) permitidas */}
+              {/* Coberturas — gerenciadas globalmente */}
               {form.max_toppings > 0 && (
                 <SectionDivider>
-                  <SectionLabel>Coberturas / Creme ({form.topping_ids.length} selecionado{form.topping_ids.length !== 1 ? "s" : ""})</SectionLabel>
-                  <CheckGrid>
-                    {flavorsForCobertura.map((f) => (
-                      <CheckItem key={f.id} $checked={form.topping_ids.includes(f.id)}>
-                        <input type="checkbox" checked={form.topping_ids.includes(f.id)}
-                          onChange={() => toggleToppingId(f.id)} style={{ margin: 0 }} />
-                        {f.name}
-                      </CheckItem>
-                    ))}
-                  </CheckGrid>
+                  <SectionLabel>Coberturas / Creme</SectionLabel>
+                  <InfoNote>
+                    Todas as coberturas ativas cadastradas em <strong>Sabores &amp; Recheios</strong> aparecem
+                    automaticamente para este produto. Para adicionar ou remover uma cobertura, vá até a página
+                    de sabores e ative ou desative o item desejado.
+                  </InfoNote>
                 </SectionDivider>
               )}
 
