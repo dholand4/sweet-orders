@@ -35,7 +35,6 @@ export async function POST(request: Request) {
         .from("products")
         .update(productPayload)
         .eq("id", parsed.id!);
-
       if (error) throw new Error(error.message);
       productId = parsed.id!;
     } else {
@@ -44,12 +43,11 @@ export async function POST(request: Request) {
         .insert(productPayload)
         .select("id")
         .single();
-
       if (error || !data) throw new Error(error?.message ?? "Falha ao criar produto.");
       productId = data.id;
     }
 
-    // Atualizar tamanhos
+    // Tamanhos
     if (isUpdate) {
       await supabase.from("product_sizes").delete().eq("product_id", productId);
     }
@@ -66,24 +64,28 @@ export async function POST(request: Request) {
       if (sizeError) throw new Error(sizeError.message);
     }
 
-    // Atualizar sabores/recheios vinculados
+    // Recheios
     await supabase.from("product_flavors").delete().eq("product_id", productId);
     if (parsed.flavor_ids && parsed.flavor_ids.length > 0) {
-      const flavorsPayload = parsed.flavor_ids.map((fid) => ({
-        product_id:       productId,
-        flavor_option_id: fid,
-      }));
-      await supabase.from("product_flavors").insert(flavorsPayload);
+      await supabase.from("product_flavors").insert(
+        parsed.flavor_ids.map((fid) => ({ product_id: productId, flavor_option_id: fid }))
+      );
     }
 
-    // Atualizar coberturas vinculadas
+    // Coberturas (creme)
     await supabase.from("product_toppings").delete().eq("product_id", productId);
     if (parsed.topping_ids && parsed.topping_ids.length > 0) {
-      const toppingsPayload = parsed.topping_ids.map((tid) => ({
-        product_id:       productId,
-        flavor_option_id: tid,
-      }));
-      await supabase.from("product_toppings").insert(toppingsPayload);
+      await supabase.from("product_toppings").insert(
+        parsed.topping_ids.map((tid) => ({ product_id: productId, flavor_option_id: tid }))
+      );
+    }
+
+    // Estilos decorativos
+    await supabase.from("product_decoration_styles").delete().eq("product_id", productId);
+    if (parsed.decoration_style_ids && parsed.decoration_style_ids.length > 0) {
+      await supabase.from("product_decoration_styles").insert(
+        parsed.decoration_style_ids.map((did) => ({ product_id: productId, decoration_style_id: did }))
+      );
     }
 
     revalidatePath("/admin/produtos");
@@ -111,11 +113,7 @@ export async function PATCH(request: Request) {
     if (!id) return NextResponse.json({ message: "ID obrigatório." }, { status: 400 });
 
     const supabase = createSupabaseServerClient();
-    const { error } = await supabase
-      .from("products")
-      .update({ is_active })
-      .eq("id", id);
-
+    const { error } = await supabase.from("products").update({ is_active }).eq("id", id);
     if (error) throw new Error(error.message);
 
     revalidatePath("/admin/produtos");

@@ -61,28 +61,29 @@ import {
 import type { OrderFormProps } from "./types";
 
 type OrderFormValues = {
-  customerName:     string;
-  whatsapp:         string;
-  productId:        string;
-  productSizeId:    string;
-  flavor1Id:        string;
-  flavor2Id:        string;
-  topping1Id:       string;
-  topping2Id:       string;
-  doughType:        "massa_branca" | "massa_chocolate";
-  theme:            string;
-  notes:            string;
-  deliveryDate:     string;
-  deliveryTime:     string;
-  street:           string;
-  number:           string;
-  district:         string;
-  city:             string;
-  reference:        string;
-  cep:              string;
-  wantsTheme:       "nao" | "sim";
-  themeStyle:       string;
-  themeDescription: string;
+  customerName:      string;
+  whatsapp:          string;
+  productId:         string;
+  productSizeId:     string;
+  flavor1Id:         string;
+  flavor2Id:         string;
+  topping1Id:        string;
+  topping2Id:        string;
+  decorationStyleId: string;
+  doughType:         "massa_branca" | "massa_chocolate";
+  theme:             string;
+  notes:             string;
+  deliveryDate:      string;
+  deliveryTime:      string;
+  street:            string;
+  number:            string;
+  district:          string;
+  city:              string;
+  reference:         string;
+  cep:               string;
+  wantsTheme:        "nao" | "sim";
+  themeStyle:        string;
+  themeDescription:  string;
 };
 
 const defaultValues: OrderFormValues = {
@@ -90,6 +91,7 @@ const defaultValues: OrderFormValues = {
   productId: "", productSizeId: "",
   flavor1Id: "", flavor2Id: "",
   topping1Id: "", topping2Id: "",
+  decorationStyleId: "",
   doughType: "massa_branca",
   theme: "", notes: "",
   deliveryDate: "", deliveryTime: "",
@@ -124,19 +126,26 @@ export function OrderForm({ catalog }: OrderFormProps) {
   const maxToppings     = selectedProduct?.max_toppings ?? 1;
   const hasDoughChoice  = selectedProduct?.allow_dough_choice ?? false;
 
-  const selectedFlavor1  = allowedFlavors.find((f) => f.id === watch("flavor1Id"));
-  const selectedFlavor2  = allowedFlavors.find((f) => f.id === watch("flavor2Id"));
-  const selectedTopping1 = allowedToppings.find((f) => f.id === watch("topping1Id"));
-  const selectedTopping2 = allowedToppings.find((f) => f.id === watch("topping2Id"));
-  const selectedDoughType = watch("doughType");
+  const allowedDecoStyles = selectedProduct?.allowed_decoration_styles ?? [];
 
-  const doughTypeLabel = selectedDoughType === "massa_chocolate" ? "Massa de chocolate" : "Massa branca";
-  const themeSummary = wantsTheme === "sim"
+  const selectedFlavor1    = allowedFlavors.find((f) => f.id === watch("flavor1Id"));
+  const selectedFlavor2    = allowedFlavors.find((f) => f.id === watch("flavor2Id"));
+  const selectedTopping1   = allowedToppings.find((f) => f.id === watch("topping1Id"));
+  const selectedTopping2   = allowedToppings.find((f) => f.id === watch("topping2Id"));
+  const selectedDecoStyle  = allowedDecoStyles.find((d) => d.id === watch("decorationStyleId"));
+  const selectedDoughType  = watch("doughType");
+
+  const doughTypeLabel  = selectedDoughType === "massa_chocolate" ? "Massa de chocolate" : "Massa branca";
+  const themeSummary    = wantsTheme === "sim"
     ? [watch("themeStyle"), watch("themeDescription")].filter(Boolean).join(" - ") || "Com tema"
     : "Sem tema";
 
-  const flavorsSummary = [selectedFlavor1?.name, selectedFlavor2?.name].filter(Boolean).join(" + ") || "A definir";
+  const flavorsSummary  = [selectedFlavor1?.name, selectedFlavor2?.name].filter(Boolean).join(" + ") || "A definir";
   const toppingsSummary = [selectedTopping1?.name, selectedTopping2?.name].filter(Boolean).join(" + ") || "A definir";
+
+  const decoStyleExtra  = selectedDecoStyle?.price_type === "fixed_extra" ? (selectedDecoStyle.price_extra ?? 0) : 0;
+  const isNegotiate     = selectedDecoStyle?.price_type === "negotiate";
+  const totalEstimate   = selectedSize ? selectedSize.price + decoStyleExtra : undefined;
 
   function formatCep(value: string) {
     const d = value.replace(/\D/g, "").slice(0, 8);
@@ -248,12 +257,13 @@ export function OrderForm({ catalog }: OrderFormProps) {
                 <SelectWrap>
                   <Select id="productId" value={selectedProductId}
                     onChange={(e) => {
-                      setValue("productId",      e.target.value, { shouldValidate: true });
-                      setValue("productSizeId",  "",             { shouldValidate: true });
-                      setValue("flavor1Id",      "",             { shouldValidate: true });
-                      setValue("flavor2Id",      "");
-                      setValue("topping1Id",     "");
-                      setValue("topping2Id",     "");
+                      setValue("productId",          e.target.value, { shouldValidate: true });
+                      setValue("productSizeId",       "",             { shouldValidate: true });
+                      setValue("flavor1Id",           "",             { shouldValidate: true });
+                      setValue("flavor2Id",           "");
+                      setValue("topping1Id",          "");
+                      setValue("topping2Id",          "");
+                      setValue("decorationStyleId",   "");
                     }}>
                     <option value="">Selecione</option>
                     {catalog.products.map((p) => (
@@ -357,6 +367,36 @@ export function OrderForm({ catalog }: OrderFormProps) {
                     </Select>
                   </SelectWrap>
                   <FieldMessage />
+                </FieldShell>
+              )}
+
+              {/* Estilo decorativo (condicional) */}
+              {allowedDecoStyles.length > 0 && (
+                <FieldShell>
+                  <Label htmlFor="decorationStyleId">Estilo decorativo</Label>
+                  <SelectWrap>
+                    <Select id="decorationStyleId" {...register("decorationStyleId")}>
+                      <option value="">Selecione o estilo</option>
+                      {allowedDecoStyles.map((d) => (
+                        <option key={d.id} value={d.id}>
+                          {d.name}
+                          {d.price_type === "fixed_extra" && d.price_extra != null
+                            ? ` (+R$${Number(d.price_extra).toFixed(2)})`
+                            : d.price_type === "negotiate"
+                            ? " (a combinar)"
+                            : " (incluso)"}
+                        </option>
+                      ))}
+                    </Select>
+                  </SelectWrap>
+                  {selectedDecoStyle?.description && (
+                    <InlineMeta>{selectedDecoStyle.description}</InlineMeta>
+                  )}
+                  {isNegotiate && (
+                    <InlineMeta style={{ color: "var(--warning, #d97706)", fontWeight: 500 }}>
+                      ⚠ Tema 3D — o valor final será combinado pelo WhatsApp após a confirmação.
+                    </InlineMeta>
+                  )}
                 </FieldShell>
               )}
 
@@ -546,6 +586,18 @@ export function OrderForm({ catalog }: OrderFormProps) {
                   <SummaryDescription>{toppingsSummary}</SummaryDescription>
                 </SummaryRow>
               )}
+              {allowedDecoStyles.length > 0 && (
+                <SummaryRow>
+                  <SummaryTerm>Estilo decorativo</SummaryTerm>
+                  <SummaryDescription>
+                    {selectedDecoStyle
+                      ? selectedDecoStyle.price_type === "negotiate"
+                        ? `${selectedDecoStyle.name} (a combinar)`
+                        : selectedDecoStyle.name
+                      : "A definir"}
+                  </SummaryDescription>
+                </SummaryRow>
+              )}
               {hasDoughChoice && (
                 <SummaryRow>
                   <SummaryTerm>Massa</SummaryTerm>
@@ -560,8 +612,18 @@ export function OrderForm({ catalog }: OrderFormProps) {
 
             <PriceBox>
               <PriceLabel>Valor estimado</PriceLabel>
-              <PriceValue>{formatCurrencyBRL(selectedSize?.price)}</PriceValue>
-              <PriceText>Valor base. Ajustes finais são combinados no WhatsApp.</PriceText>
+              <PriceValue>
+                {isNegotiate
+                  ? `${formatCurrencyBRL(selectedSize?.price)} + a combinar`
+                  : formatCurrencyBRL(totalEstimate)}
+              </PriceValue>
+              <PriceText>
+                {decoStyleExtra > 0
+                  ? `Base ${formatCurrencyBRL(selectedSize?.price)} + estilo ${formatCurrencyBRL(decoStyleExtra)}. Ajustes finais no WhatsApp.`
+                  : isNegotiate
+                  ? "O valor do estilo 3D será combinado após a confirmação."
+                  : "Valor base. Ajustes finais são combinados no WhatsApp."}
+              </PriceText>
             </PriceBox>
 
             <PrimaryButton type="submit" disabled={isSubmittingForm}>

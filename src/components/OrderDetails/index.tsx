@@ -63,6 +63,19 @@ export function OrderDetails({ order }: OrderDetailsProps) {
           <DetailLabel>Cobertura</DetailLabel>
           <DetailValue>{toppingsLine}</DetailValue>
         </DetailItem>
+        {order.decoration_style && (
+          <DetailItem>
+            <DetailLabel>Estilo decorativo</DetailLabel>
+            <DetailValue>
+              {order.decoration_style.name}
+              {order.decoration_style.price_type === "fixed_extra" && order.decoration_style.price_extra != null
+                ? ` (+${formatCurrencyBRL(order.decoration_style.price_extra)})`
+                : order.decoration_style.price_type === "negotiate"
+                ? " (a combinar)"
+                : ""}
+            </DetailValue>
+          </DetailItem>
+        )}
         {order.dough_type && (
           <DetailItem>
             <DetailLabel>Massa</DetailLabel>

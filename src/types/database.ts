@@ -111,39 +111,52 @@ export type Database = {
           created_at?: string;
         };
       };
-      product_flavors: {
+      decoration_styles: {
         Row: {
           id: string;
-          product_id: string;
-          flavor_option_id: string;
+          name: string;
+          price_type: "included" | "fixed_extra" | "negotiate";
+          price_extra: number | null;
+          description: string | null;
+          is_active: boolean;
+          sort_order: number;
+          created_at: string;
         };
         Insert: {
           id?: string;
-          product_id: string;
-          flavor_option_id: string;
+          name: string;
+          price_type?: "included" | "fixed_extra" | "negotiate";
+          price_extra?: number | null;
+          description?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
+          created_at?: string;
         };
         Update: {
           id?: string;
-          product_id?: string;
-          flavor_option_id?: string;
+          name?: string;
+          price_type?: "included" | "fixed_extra" | "negotiate";
+          price_extra?: number | null;
+          description?: string | null;
+          is_active?: boolean;
+          sort_order?: number;
+          created_at?: string;
         };
       };
+      product_flavors: {
+        Row: { id: string; product_id: string; flavor_option_id: string };
+        Insert: { id?: string; product_id: string; flavor_option_id: string };
+        Update: { id?: string; product_id?: string; flavor_option_id?: string };
+      };
       product_toppings: {
-        Row: {
-          id: string;
-          product_id: string;
-          flavor_option_id: string;
-        };
-        Insert: {
-          id?: string;
-          product_id: string;
-          flavor_option_id: string;
-        };
-        Update: {
-          id?: string;
-          product_id?: string;
-          flavor_option_id?: string;
-        };
+        Row: { id: string; product_id: string; flavor_option_id: string };
+        Insert: { id?: string; product_id: string; flavor_option_id: string };
+        Update: { id?: string; product_id?: string; flavor_option_id?: string };
+      };
+      product_decoration_styles: {
+        Row: { id: string; product_id: string; decoration_style_id: string };
+        Insert: { id?: string; product_id: string; decoration_style_id: string };
+        Update: { id?: string; product_id?: string; decoration_style_id?: string };
       };
       orders: {
         Row: {
@@ -156,6 +169,7 @@ export type Database = {
           flavor_2_id: string | null;
           topping_1_id: string | null;
           topping_2_id: string | null;
+          decoration_style_id: string | null;
           dough_type: "massa_branca" | "massa_chocolate" | null;
           theme: string | null;
           notes: string | null;
@@ -181,6 +195,7 @@ export type Database = {
           flavor_2_id?: string | null;
           topping_1_id?: string | null;
           topping_2_id?: string | null;
+          decoration_style_id?: string | null;
           dough_type?: "massa_branca" | "massa_chocolate" | null;
           theme?: string | null;
           notes?: string | null;
@@ -206,6 +221,7 @@ export type Database = {
           flavor_2_id?: string | null;
           topping_1_id?: string | null;
           topping_2_id?: string | null;
+          decoration_style_id?: string | null;
           dough_type?: "massa_branca" | "massa_chocolate" | null;
           theme?: string | null;
           notes?: string | null;
