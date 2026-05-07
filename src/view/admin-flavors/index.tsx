@@ -29,8 +29,35 @@ const slideRight = keyframes`
 const PageWrap = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 0;
   animation: ${fadeUp} 0.3s ease;
+`;
+
+const TabBar = styled.div`
+  display: flex;
+  gap: 4px;
+  border-bottom: 2px solid ${({ theme }) => theme.colors.border};
+  margin-bottom: 32px;
+`;
+
+const Tab = styled.button<{ $active: boolean }>`
+  padding: 10px 22px;
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.semibold};
+  font-family: inherit;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-bottom: 2px solid ${({ $active, theme }) => $active ? theme.colors.primary : "transparent"};
+  color: ${({ $active, theme }) => $active ? theme.colors.primary : theme.colors.textMuted};
+  margin-bottom: -2px;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  border-radius: ${({ theme }) => theme.radii.md} ${({ theme }) => theme.radii.md} 0 0;
+
+  &:hover {
+    color: ${({ theme }) => theme.colors.primary};
+    background: ${({ theme }) => theme.colors.primarySoft};
+  }
 `;
 
 const Section = styled.section`
@@ -464,6 +491,7 @@ type Props = {
 export function FlavorsView({ flavorsOnly: initialFlavors, decoStyles: initialDecoStyles }: Props) {
   const router = useRouter();
 
+  const [activeTab,  setActiveTab]  = useState<"sabores" | "temas">("sabores");
   const [flavors,    setFlavors]    = useState(initialFlavors);
   const [decoStyles, setDecoStyles] = useState(initialDecoStyles);
   const [mode,       setMode]       = useState<DrawerMode>(null);
@@ -584,88 +612,99 @@ export function FlavorsView({ flavorsOnly: initialFlavors, decoStyles: initialDe
 
   return (
     <PageWrap>
-      {/* ── Seção: Sabores & Recheios ── */}
-      <Section>
-        <SectionHeader>
-          <div>
-            <SectionTitle>Sabores & Recheios</SectionTitle>
-            <SectionDesc>{flavors.length} opção{flavors.length !== 1 ? "ões" : ""} cadastrada{flavors.length !== 1 ? "s" : ""}</SectionDesc>
-          </div>
-          <AddButton type="button" onClick={openCreateFlavor}>+ Novo sabor</AddButton>
-        </SectionHeader>
+      <TabBar>
+        <Tab $active={activeTab === "sabores"} type="button" onClick={() => setActiveTab("sabores")}>
+          Sabores & Recheios
+        </Tab>
+        <Tab $active={activeTab === "temas"} type="button" onClick={() => setActiveTab("temas")}>
+          Estilos de Tema
+        </Tab>
+      </TabBar>
 
-        {flavors.length === 0 ? (
-          <EmptyState><p>Nenhum sabor cadastrado ainda.</p></EmptyState>
-        ) : (
-          <Grid>
-            {flavors.map((f) => (
-              <Card key={f.id} $inactive={!f.is_active}>
-                <CardHeader>
-                  <CardName>{f.name}</CardName>
-                  <TypeBadge $type={f.type}>{FLAVOR_TYPE_LABELS[f.type]}</TypeBadge>
-                </CardHeader>
-                {f.description && <CardDesc>{f.description}</CardDesc>}
-                <span style={{ fontSize: "0.75rem" }}>
-                  <StatusDot $active={f.is_active} />{f.is_active ? "Ativo" : "Inativo"}
-                  {(f.type === "cobertura" || f.type === "ambos") && (
-                    <span style={{ marginLeft: 8, opacity: 0.7 }}>
-                      · {f.has_flavor ? "Com sabor" : "Sem sabor"}
-                    </span>
+      {activeTab === "sabores" && (
+        <Section>
+          <SectionHeader>
+            <div>
+              <SectionTitle>Sabores & Recheios</SectionTitle>
+              <SectionDesc>{flavors.length} opção{flavors.length !== 1 ? "ões" : ""} cadastrada{flavors.length !== 1 ? "s" : ""}</SectionDesc>
+            </div>
+            <AddButton type="button" onClick={openCreateFlavor}>+ Novo sabor</AddButton>
+          </SectionHeader>
+
+          {flavors.length === 0 ? (
+            <EmptyState><p>Nenhum sabor cadastrado ainda.</p></EmptyState>
+          ) : (
+            <Grid>
+              {flavors.map((f) => (
+                <Card key={f.id} $inactive={!f.is_active}>
+                  <CardHeader>
+                    <CardName>{f.name}</CardName>
+                    <TypeBadge $type={f.type}>{FLAVOR_TYPE_LABELS[f.type]}</TypeBadge>
+                  </CardHeader>
+                  {f.description && <CardDesc>{f.description}</CardDesc>}
+                  <span style={{ fontSize: "0.75rem" }}>
+                    <StatusDot $active={f.is_active} />{f.is_active ? "Ativo" : "Inativo"}
+                    {(f.type === "cobertura" || f.type === "ambos") && (
+                      <span style={{ marginLeft: 8, opacity: 0.7 }}>
+                        · {f.has_flavor ? "Com sabor" : "Sem sabor"}
+                      </span>
+                    )}
+                  </span>
+                  <CardActions>
+                    <ActionBtn $outline type="button" onClick={() => openEditFlavor(f)}>Editar</ActionBtn>
+                    <ActionBtn $danger={f.is_active} type="button" onClick={() => handleToggleFlavor(f.id, !f.is_active)}>
+                      {f.is_active ? "Desativar" : "Ativar"}
+                    </ActionBtn>
+                  </CardActions>
+                </Card>
+              ))}
+            </Grid>
+          )}
+        </Section>
+      )}
+
+      {activeTab === "temas" && (
+        <Section>
+          <SectionHeader>
+            <div>
+              <SectionTitle>Estilos de Tema</SectionTitle>
+              <SectionDesc>{decoStyles.length} estilo{decoStyles.length !== 1 ? "s" : ""} cadastrado{decoStyles.length !== 1 ? "s" : ""}</SectionDesc>
+            </div>
+            <AddButton type="button" onClick={openCreateDeco}>+ Novo estilo</AddButton>
+          </SectionHeader>
+
+          {decoStyles.length === 0 ? (
+            <EmptyState><p>Nenhum estilo de tema cadastrado ainda.</p></EmptyState>
+          ) : (
+            <Grid>
+              {decoStyles.map((d) => (
+                <Card key={d.id} $inactive={!d.is_active}>
+                  <CardHeader>
+                    <CardName>{d.name}</CardName>
+                    <TypeBadge $type={d.price_type}>{DECO_PRICE_LABELS[d.price_type]}</TypeBadge>
+                  </CardHeader>
+                  {d.price_type === "fixed_extra" && d.price_extra != null && (
+                    <PriceBadge>+{formatCurrencyBRL(d.price_extra)}</PriceBadge>
                   )}
-                </span>
-                <CardActions>
-                  <ActionBtn $outline type="button" onClick={() => openEditFlavor(f)}>Editar</ActionBtn>
-                  <ActionBtn $danger={f.is_active} type="button" onClick={() => handleToggleFlavor(f.id, !f.is_active)}>
-                    {f.is_active ? "Desativar" : "Ativar"}
-                  </ActionBtn>
-                </CardActions>
-              </Card>
-            ))}
-          </Grid>
-        )}
-      </Section>
-
-      {/* ── Seção: Estilos Decorativos ── */}
-      <Section>
-        <SectionHeader>
-          <div>
-            <SectionTitle>Estilos Decorativos</SectionTitle>
-            <SectionDesc>{decoStyles.length} estilo{decoStyles.length !== 1 ? "s" : ""} cadastrado{decoStyles.length !== 1 ? "s" : ""} · Tema Padrão +R$10 · 3D a combinar</SectionDesc>
-          </div>
-          <AddButton type="button" onClick={openCreateDeco}>+ Novo estilo</AddButton>
-        </SectionHeader>
-
-        {decoStyles.length === 0 ? (
-          <EmptyState><p>Nenhum estilo decorativo cadastrado ainda.</p></EmptyState>
-        ) : (
-          <Grid>
-            {decoStyles.map((d) => (
-              <Card key={d.id} $inactive={!d.is_active}>
-                <CardHeader>
-                  <CardName>{d.name}</CardName>
-                  <TypeBadge $type={d.price_type}>{DECO_PRICE_LABELS[d.price_type]}</TypeBadge>
-                </CardHeader>
-                {d.price_type === "fixed_extra" && d.price_extra != null && (
-                  <PriceBadge>+{formatCurrencyBRL(d.price_extra)}</PriceBadge>
-                )}
-                {d.price_type === "negotiate" && (
-                  <PriceBadge style={{ color: "inherit", opacity: 0.7 }}>Preço a combinar</PriceBadge>
-                )}
-                {d.description && <CardDesc>{d.description}</CardDesc>}
-                <span style={{ fontSize: "0.75rem" }}>
-                  <StatusDot $active={d.is_active} />{d.is_active ? "Ativo" : "Inativo"}
-                </span>
-                <CardActions>
-                  <ActionBtn $outline type="button" onClick={() => openEditDeco(d)}>Editar</ActionBtn>
-                  <ActionBtn $danger={d.is_active} type="button" onClick={() => handleToggleDeco(d.id, !d.is_active)}>
-                    {d.is_active ? "Desativar" : "Ativar"}
-                  </ActionBtn>
-                </CardActions>
-              </Card>
-            ))}
-          </Grid>
-        )}
-      </Section>
+                  {d.price_type === "negotiate" && (
+                    <PriceBadge style={{ color: "inherit", opacity: 0.7 }}>Preço a combinar</PriceBadge>
+                  )}
+                  {d.description && <CardDesc>{d.description}</CardDesc>}
+                  <span style={{ fontSize: "0.75rem" }}>
+                    <StatusDot $active={d.is_active} />{d.is_active ? "Ativo" : "Inativo"}
+                  </span>
+                  <CardActions>
+                    <ActionBtn $outline type="button" onClick={() => openEditDeco(d)}>Editar</ActionBtn>
+                    <ActionBtn $danger={d.is_active} type="button" onClick={() => handleToggleDeco(d.id, !d.is_active)}>
+                      {d.is_active ? "Desativar" : "Ativar"}
+                    </ActionBtn>
+                  </CardActions>
+                </Card>
+              ))}
+            </Grid>
+          )}
+        </Section>
+      )}
 
       {/* ── Drawers ── */}
       {mode && (
