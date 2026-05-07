@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { AdminLayout } from "@/components/AdminLayout";
 import { OrdersTable } from "@/components/OrdersTable";
 import type { AdminOrder } from "@/@types/orders";
@@ -14,6 +16,18 @@ export function AdminOrdersView({
   orders,
   selectedStatus,
 }: AdminOrdersViewProps) {
+  const router = useRouter();
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      if (document.visibilityState === "visible") {
+        router.refresh();
+      }
+    }, 15000);
+
+    return () => window.clearInterval(intervalId);
+  }, [router]);
+
   return (
     <AdminLayout
       title="Pedidos recentes"

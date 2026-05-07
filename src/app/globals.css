@@ -47,3 +47,14 @@ select,
 textarea {
   font: inherit;
 }
+
+@media (hover: none) and (pointer: coarse) {
+  a,
+  button,
+  input,
+  label,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+}

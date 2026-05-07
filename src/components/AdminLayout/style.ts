@@ -40,12 +40,17 @@ export const Topbar = styled.div`
   display: grid;
   gap: ${({ theme }) => theme.space[4]};
   padding: ${({ theme }) => theme.space[4]};
-  border: 1px solid rgba(255, 255, 255, 0.42);
+  border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 32px;
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.4), transparent 24%),
-    linear-gradient(135deg, rgba(247, 204, 216, 0.95) 0%, rgba(231, 150, 173, 0.96) 50%, rgba(141, 41, 64, 0.94) 100%);
+  background: #d9859c;
   box-shadow: 0 24px 56px -28px rgba(110, 36, 57, 0.34);
+
+  @media (max-width: 767px) {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    padding: ${({ theme }) => theme.space[3]};
+    border-radius: 24px;
+  }
 
   ${media.lg} {
     padding: ${({ theme }) => theme.space[5]};
@@ -57,6 +62,36 @@ export const Topbar = styled.div`
 export const Brand = styled.div`
   display: grid;
   gap: ${({ theme }) => theme.space[2]};
+
+  @media (max-width: 767px) {
+    display: none;
+  }
+`;
+
+export const MobileTitle = styled.span`
+  color: #fff;
+  font-family: var(--font-heading), serif;
+  font-size: ${({ theme }) => theme.fontSizes["2xl"]};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  line-height: ${({ theme }) => theme.lineHeights.tight};
+
+  ${media.md} {
+    display: none;
+  }
+`;
+
+export const MenuButton = styled.button`
+  ${pillButton}
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+  justify-self: end;
+  backdrop-filter: blur(6px);
+
+  ${media.md} {
+    display: none;
+  }
 `;
 
 export const TitleWrap = styled.div`
@@ -86,21 +121,68 @@ export const Description = styled.p`
   }
 `;
 
-export const Nav = styled.nav`
+export const Nav = styled.nav<{ $open?: boolean }>`
   display: flex;
   gap: ${({ theme }) => theme.space[2]};
-  flex-wrap: nowrap;
-  justify-content: flex-start;
-  overflow-x: auto;
-  scrollbar-width: none;
 
-  &::-webkit-scrollbar {
-    display: none;
+  @media (max-width: 767px) {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 80;
+    width: min(82vw, 320px);
+    padding: ${({ theme }) => theme.space[4]};
+    flex-direction: column;
+    justify-content: flex-start;
+    border-left: 1px solid rgba(255, 255, 255, 0.32);
+    background:
+      linear-gradient(180deg, rgba(255, 245, 248, 0.98), rgba(246, 206, 218, 0.98)),
+      ${({ theme }) => theme.colors.surface};
+    box-shadow: -18px 0 42px -24px rgba(58, 29, 42, 0.38);
+    transform: translateX(${({ $open }) => ($open ? "0" : "108%")});
+    transition: transform 0.28s ease;
+  }
+
+  ${media.md} {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   ${media.lg} {
     justify-content: flex-end;
     overflow: visible;
+  }
+`;
+
+export const DrawerBackdrop = styled.button`
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  border: 0;
+  background: rgba(78, 43, 57, 0.48);
+
+  ${media.md} {
+    display: none;
+  }
+`;
+
+export const DrawerCloseButton = styled.button`
+  ${pillButton}
+  align-self: flex-end;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: rgba(255, 255, 255, 0.84);
+  color: ${({ theme }) => theme.colors.wine};
+  cursor: pointer;
+
+  ${media.md} {
+    display: none;
   }
 `;
 
@@ -112,6 +194,18 @@ export const NavLink = styled(Link)<{ $active?: boolean }>`
     $active ? "rgba(255, 255, 255, 0.26)" : "rgba(255, 255, 255, 0.14)"};
   color: #fff;
   backdrop-filter: blur(6px);
+
+  @media (max-width: 767px) {
+    width: 100%;
+    justify-content: center;
+    border-color: ${({ theme }) => theme.colors.border};
+    background: ${({ $active, theme }) =>
+      $active
+        ? `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.primaryHover})`
+        : "rgba(255, 255, 255, 0.88)"};
+    color: ${({ $active, theme }) => ($active ? theme.colors.surface : theme.colors.wine)};
+    backdrop-filter: none;
+  }
 `;
 
 export const LogoutButton = styled.button`
@@ -122,6 +216,13 @@ export const LogoutButton = styled.button`
   color: #fff;
   cursor: pointer;
   backdrop-filter: blur(6px);
+
+  @media (max-width: 767px) {
+    width: 100%;
+    background: linear-gradient(135deg, #cf4d66, #aa2944);
+    border-color: rgba(170, 41, 68, 0.18);
+    backdrop-filter: none;
+  }
 `;
 
 export const ContentCard = styled.section`

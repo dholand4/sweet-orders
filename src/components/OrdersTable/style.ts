@@ -389,6 +389,12 @@ export const ModalOverlay = styled.div`
   place-items: center;
   padding: 16px;
   background: rgba(116, 116, 116, 0.82);
+
+  @media (max-width: 767px) {
+    padding: 0;
+    place-items: stretch;
+    background: rgba(92, 92, 92, 0.9);
+  }
 `;
 
 export const ModalCard = styled.div`
@@ -400,6 +406,16 @@ export const ModalCard = styled.div`
   border: 1px solid ${({ theme }) => theme.colors.border};
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(253, 241, 244, 0.9));
   box-shadow: 0 24px 64px -28px rgba(58, 29, 42, 0.38);
+
+  @media (max-width: 767px) {
+    width: 100%;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    padding: ${({ theme }) => theme.space[3]};
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
 `;
 
 export const ModalHeader = styled.div`
@@ -408,6 +424,16 @@ export const ModalHeader = styled.div`
   gap: ${({ theme }) => theme.space[3]};
   align-items: center;
   margin-bottom: ${({ theme }) => theme.space[3]};
+
+  @media (max-width: 767px) {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: ${({ theme }) => `-${theme.space[3]} -${theme.space[3]} ${theme.space[3]}`};
+    padding: ${({ theme }) => `${theme.space[3]} ${theme.space[3]} ${theme.space[2]}`};
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(253, 241, 244, 0.94));
+    border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  }
 `;
 
 export const ModalTitle = styled.h3`
@@ -416,6 +442,10 @@ export const ModalTitle = styled.h3`
   font-family: var(--font-heading), serif;
   font-size: ${({ theme }) => theme.fontSizes["3xl"]};
   line-height: ${({ theme }) => theme.lineHeights.tight};
+
+  @media (max-width: 767px) {
+    font-size: ${({ theme }) => theme.fontSizes["2xl"]};
+  }
 `;
 
 export const ModalCloseButton = styled.button`
@@ -434,6 +464,15 @@ export const ModalActions = styled.div`
   gap: ${({ theme }) => theme.space[2]};
   margin-top: ${({ theme }) => theme.space[3]};
   flex-wrap: wrap;
+
+  @media (max-width: 767px) {
+    position: sticky;
+    bottom: 0;
+    margin: ${({ theme }) => `${theme.space[3]} -${theme.space[3]} -${theme.space[3]}`};
+    padding: ${({ theme }) => `${theme.space[2]} ${theme.space[3]} calc(${theme.space[3]} + env(safe-area-inset-bottom, 0px))`};
+    background: linear-gradient(0deg, rgba(255, 255, 255, 0.99), rgba(253, 241, 244, 0.95));
+    border-top: 1px solid ${({ theme }) => theme.colors.border};
+  }
 `;
 
 export const ConfirmText = styled.p`
@@ -441,4 +480,34 @@ export const ConfirmText = styled.p`
   color: ${({ theme }) => theme.colors.textMuted};
   font-size: ${({ theme }) => theme.fontSizes.base};
   line-height: ${({ theme }) => theme.lineHeights.relaxed};
+`;
+
+export const Pagination = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.space[2]};
+  flex-wrap: wrap;
+  padding-top: ${({ theme }) => theme.space[2]};
+`;
+
+export const PaginationButton = styled.button`
+  ${pillButton}
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: rgba(255, 255, 255, 0.9);
+  color: ${({ theme }) => theme.colors.wine};
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+`;
+
+export const PaginationInfo = styled.span`
+  color: ${({ theme }) => theme.colors.textMuted};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
 `;

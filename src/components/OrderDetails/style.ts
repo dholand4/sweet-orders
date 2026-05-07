@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { media } from "@/utils/media";
 
 export const DetailsShell = styled.aside`
   display: grid;
@@ -8,6 +9,14 @@ export const DetailsShell = styled.aside`
   border-radius: ${({ theme }) => theme.radii.md};
   background: linear-gradient(180deg, rgba(252, 232, 240, 0.38), rgba(255, 255, 255, 0.98));
   box-shadow: ${({ theme }) => theme.shadows.sm};
+
+  @media (max-width: 767px) {
+    padding: ${({ theme }) => theme.space[1]} 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
 `;
 
 export const DetailsTitle = styled.h3`
@@ -16,6 +25,10 @@ export const DetailsTitle = styled.h3`
   font-family: var(--font-heading), serif;
   font-size: ${({ theme }) => theme.fontSizes["2xl"]};
   line-height: ${({ theme }) => theme.lineHeights.tight};
+
+  ${media.md} {
+    font-size: ${({ theme }) => theme.fontSizes["2xl"]};
+  }
 `;
 
 export const DetailsText = styled.p`
@@ -28,11 +41,22 @@ export const DetailsText = styled.p`
 export const DetailGrid = styled.div`
   display: grid;
   gap: ${({ theme }) => theme.space[3]};
+
+  @media (max-width: 767px) {
+    gap: ${({ theme }) => theme.space[2]};
+  }
 `;
 
 export const DetailItem = styled.div`
   display: grid;
   gap: ${({ theme }) => theme.space[1]};
+  padding-bottom: ${({ theme }) => theme.space[2]};
+  border-bottom: 1px solid rgba(219, 178, 192, 0.45);
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
+  }
 `;
 
 export const DetailLabel = styled.span`

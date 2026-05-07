@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AdminOrder } from "@/@types/orders";
 import { OrderDetails } from "@/components/OrderDetails";
 import { StatusBadge } from "@/components/StatusBadge";
@@ -44,6 +44,9 @@ import {
   ModalCloseButton,
   ModalHeader,
   ModalOverlay,
+  Pagination,
+  PaginationButton,
+  PaginationInfo,
   ModalTitle,
   OrdersShell,
   SelectWrap,
@@ -55,6 +58,7 @@ import {
 import type { OrdersTableProps } from "./types";
 
 type StatusOptionValue = (typeof ORDER_STATUS_OPTIONS)[number]["value"];
+const PAGE_SIZE = 10;
 
 function getAllowedNextStatuses(currentStatus: string) {
   if (currentStatus === "novo") {
@@ -118,6 +122,7 @@ export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
   const [currentStatus, setCurrentStatus] = useState(selectedStatus);
   const [selectedDate, setSelectedDate] = useState("");
   const [localOrders, setLocalOrders] = useState(orders);
+  const [currentPage, setCurrentPage] = useState(1);
   const [pendingStatusChange, setPendingStatusChange] = useState<{
     orderId: string;
     currentStatus: string;
@@ -142,6 +147,31 @@ export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
     currentStatus === "todos"
       ? "Todos os pedidos"
       : ORDER_STATUS_OPTIONS.find((option) => option.value === currentStatus)?.label ?? "Pedidos";
+
+  const totalPages = Math.max(1, Math.ceil(visibleOrders.length / PAGE_SIZE));
+  const paginatedOrders = useMemo(() => {
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    return visibleOrders.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [currentPage, visibleOrders]);
+
+  useEffect(() => {
+    setLocalOrders(orders);
+
+    if (activeOrder) {
+      const updatedActiveOrder = orders.find((order) => order.id === activeOrder.id) ?? null;
+      setActiveOrder(updatedActiveOrder);
+    }
+  }, [activeOrder, orders]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [currentStatus, selectedDate]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   function handleFilterChange(status: string) {
     setCurrentStatus(status);
@@ -258,7 +288,7 @@ export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
         {visibleOrders.length ? (
           <>
             <MobileList>
-              {visibleOrders.map((order) => {
+              {paginatedOrders.map((order) => {
                 const allowedStatuses = getAllowedNextStatuses(order.status);
 
                 return (
@@ -340,7 +370,7 @@ export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {visibleOrders.map((order) => {
+                  {paginatedOrders.map((order) => {
                     const allowedStatuses = getAllowedNextStatuses(order.status);
 
                     return (
@@ -400,6 +430,28 @@ export function OrdersTable({ orders, selectedStatus }: OrdersTableProps) {
                 </tbody>
               </Table>
             </TableWrap>
+
+            {totalPages > 1 ? (
+              <Pagination>
+                <PaginationButton
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                  disabled={currentPage === 1}
+                >
+                  Anterior
+                </PaginationButton>
+                <PaginationInfo>
+                  Pagina {currentPage} de {totalPages}
+                </PaginationInfo>
+                <PaginationButton
+                  type="button"
+                  onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  Proxima
+                </PaginationButton>
+              </Pagination>
+            ) : null}
           </>
         ) : (
           <EmptyState>
