@@ -10,11 +10,27 @@ type RouteContext = {
   }>;
 };
 
+function isStatusTransitionAllowed(currentStatus: string, nextStatus: string) {
+  if (currentStatus === nextStatus) {
+    return true;
+  }
+
+  if (currentStatus === "novo") {
+    return ["confirmado", "cancelado"].includes(nextStatus);
+  }
+
+  if (currentStatus === "confirmado") {
+    return ["finalizado", "cancelado"].includes(nextStatus);
+  }
+
+  return false;
+}
+
 export async function PATCH(request: Request, context: RouteContext) {
   const authenticated = await isAdminAuthenticated();
 
   if (!authenticated) {
-    return NextResponse.json({ message: "Não autorizado." }, { status: 401 });
+    return NextResponse.json({ message: "Nao autorizado." }, { status: 401 });
   }
 
   try {
@@ -22,6 +38,26 @@ export async function PATCH(request: Request, context: RouteContext) {
     const parsed = orderStatusSchema.parse(body);
     const { id } = await context.params;
     const supabase = createSupabaseServerClient();
+
+    const { data: order, error: orderError } = await supabase
+      .from("orders")
+      .select("id, status")
+      .eq("id", id)
+      .single();
+
+    if (orderError || !order) {
+      return NextResponse.json(
+        { message: "Pedido nao encontrado." },
+        { status: 404 },
+      );
+    }
+
+    if (!isStatusTransitionAllowed(order.status, parsed.status)) {
+      return NextResponse.json(
+        { message: "Essa mudanca de status nao e permitida." },
+        { status: 400 },
+      );
+    }
 
     const { error } = await supabase
       .from("orders")
@@ -44,7 +80,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         message:
           error instanceof Error
             ? error.message
-            : "Não foi possível atualizar o pedido.",
+            : "Nao foi possivel atualizar o pedido.",
       },
       { status: 400 },
     );

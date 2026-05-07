@@ -3,42 +3,28 @@ import { Container } from "@/components/Container/style";
 import { media } from "@/utils/media";
 
 export const PageShell = styled.main`
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   place-items: center;
-  padding-block: ${({ theme }) => theme.space[4]};
+  padding: 16px;
   background:
-    radial-gradient(circle at top left, rgba(255, 217, 154, 0.18), transparent 28%),
+    radial-gradient(circle at top center, rgba(255, 255, 255, 0.34), transparent 24%),
     linear-gradient(180deg, ${({ theme }) => theme.colors.bg} 0%, ${({ theme }) => theme.colors.bgSecondary} 100%);
+
+  ${media.md} {
+    padding: 24px;
+  }
 `;
 
 export const PageContainer = styled(Container)`
   display: grid;
-  gap: ${({ theme }) => theme.space[5]};
+  place-items: center;
+  width: 100%;
+  min-height: calc(100dvh - 32px);
+  padding-top: 0;
+  padding-bottom: 0;
 
-  ${media.lg} {
-    grid-template-columns: minmax(0, 1fr) minmax(360px, 30rem);
-    align-items: center;
+  ${media.md} {
+    min-height: calc(100dvh - 48px);
   }
-`;
-
-export const Intro = styled.div`
-  display: grid;
-  gap: ${({ theme }) => theme.space[3]};
-`;
-
-export const IntroTitle = styled.h1`
-  margin: 0;
-  color: ${({ theme }) => theme.colors.wine};
-  font-family: var(--font-heading), serif;
-  font-size: ${({ theme }) => theme.fontSizes["4xl"]};
-  line-height: ${({ theme }) => theme.lineHeights.tight};
-`;
-
-export const IntroText = styled.p`
-  max-width: 34rem;
-  margin: 0;
-  color: ${({ theme }) => theme.colors.textMuted};
-  font-size: ${({ theme }) => theme.fontSizes.base};
-  line-height: ${({ theme }) => theme.lineHeights.relaxed};
 `;

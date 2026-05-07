@@ -3,11 +3,15 @@
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { Logo } from "@/components/Logo";
 import {
   LoginButton,
   LoginCard,
   LoginError,
   LoginField,
+  LoginForm,
+  LoginHeader,
+  LoginHelper,
   LoginInput,
   LoginLabel,
   LoginText,
@@ -15,7 +19,7 @@ import {
 } from "./style";
 import type { AdminLoginProps } from "./types";
 
-export function AdminLogin({ title = "Painel administrativo" }: AdminLoginProps) {
+export function AdminLogin({ title = "Entrar no painel" }: AdminLoginProps) {
   const router = useRouter();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -37,7 +41,7 @@ export function AdminLogin({ title = "Painel administrativo" }: AdminLoginProps)
       const payload = (await response.json()) as { message?: string };
 
       if (!response.ok) {
-        throw new Error(payload.message || "Senha inválida.");
+        throw new Error(payload.message || "Senha invalida.");
       }
 
       router.push("/admin/pedidos");
@@ -46,7 +50,7 @@ export function AdminLogin({ title = "Painel administrativo" }: AdminLoginProps)
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "Não foi possível acessar o painel.",
+          : "Nao foi possivel acessar o painel.",
       );
     } finally {
       setIsLoading(false);
@@ -55,14 +59,16 @@ export function AdminLogin({ title = "Painel administrativo" }: AdminLoginProps)
 
   return (
     <LoginCard>
-      <div>
-        <LoginTitle>{title}</LoginTitle>
+      <LoginHeader>
+        <Logo size={108} priority />
+        <LoginTitle>{title === "Entrar no painel" ? "Painel administrativo" : title}</LoginTitle>
         <LoginText>
-          Acesse o painel para acompanhar pedidos, atualizar status e manter as
-          opções do catálogo sempre em dia.
+          Use a senha da recepcao para abrir o painel, revisar pedidos e manter o
+          catalogo atualizado com seguranca.
         </LoginText>
-      </div>
-      <form onSubmit={handleSubmit}>
+      </LoginHeader>
+
+      <LoginForm onSubmit={handleSubmit}>
         <LoginField>
           <LoginLabel htmlFor="adminPassword">Senha</LoginLabel>
           <LoginInput
@@ -71,12 +77,15 @@ export function AdminLogin({ title = "Painel administrativo" }: AdminLoginProps)
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
+          <LoginHelper>Somente pessoas autorizadas devem acessar esta area.</LoginHelper>
         </LoginField>
+
         {error ? <LoginError>{error}</LoginError> : null}
+
         <LoginButton type="submit" disabled={isLoading}>
           {isLoading ? "Entrando..." : "Entrar no admin"}
         </LoginButton>
-      </form>
+      </LoginForm>
     </LoginCard>
   );
 }

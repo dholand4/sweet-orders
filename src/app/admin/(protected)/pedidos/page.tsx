@@ -13,7 +13,7 @@ export default async function AdminOrdersPage({
   searchParams,
 }: AdminOrdersPageProps) {
   const { status } = await searchParams;
-  const orders = await getOrders(status);
+  const orders = await getOrders();
 
   return <AdminOrdersView orders={orders} selectedStatus={status ?? "todos"} />;
 }

@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Logo } from "@/components/Logo";
 import {
   Brand,
   ContentCard,
@@ -39,7 +38,6 @@ export function AdminLayout({
       <PageContainer>
         <Topbar>
           <Brand>
-            <Logo size={76} />
             <TitleWrap>
               <Title>{title}</Title>
               <Description>{description}</Description>

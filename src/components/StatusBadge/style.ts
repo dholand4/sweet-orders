@@ -5,10 +5,6 @@ const tones = {
     background: rgba(197, 72, 125, 0.14);
     color: ${({ theme }) => theme.colors.primary};
   `,
-  em_analise: css`
-    background: rgba(255, 217, 154, 0.3);
-    color: ${({ theme }) => theme.colors.warning};
-  `,
   confirmado: css`
     background: rgba(78, 155, 105, 0.14);
     color: ${({ theme }) => theme.colors.success};

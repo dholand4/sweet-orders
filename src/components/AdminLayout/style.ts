@@ -39,7 +39,7 @@ export const Topbar = styled.div`
   overflow: hidden;
   display: grid;
   gap: ${({ theme }) => theme.space[4]};
-  padding: ${({ theme }) => theme.space[5]};
+  padding: ${({ theme }) => theme.space[4]};
   border: 1px solid rgba(255, 255, 255, 0.42);
   border-radius: 32px;
   background:
@@ -48,15 +48,15 @@ export const Topbar = styled.div`
   box-shadow: 0 24px 56px -28px rgba(110, 36, 57, 0.34);
 
   ${media.lg} {
+    padding: ${({ theme }) => theme.space[5]};
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: start;
   }
 `;
 
 export const Brand = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.space[4]};
+  display: grid;
+  gap: ${({ theme }) => theme.space[2]};
 `;
 
 export const TitleWrap = styled.div`
@@ -68,7 +68,7 @@ export const Title = styled.h1`
   margin: 0;
   color: #fff;
   font-family: var(--font-heading), serif;
-  font-size: clamp(2.2rem, 3vw + 1rem, 3.5rem);
+  font-size: clamp(1.9rem, 4vw + 0.9rem, 3.5rem);
   line-height: 1.05;
   text-shadow: 0 10px 24px rgba(110, 36, 57, 0.2);
 `;
@@ -77,19 +77,36 @@ export const Description = styled.p`
   max-width: 44rem;
   margin: 0;
   color: rgba(255, 255, 255, 0.92);
-  font-size: ${({ theme }) => theme.fontSizes.base};
-  line-height: ${({ theme }) => theme.lineHeights.relaxed};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  line-height: ${({ theme }) => theme.lineHeights.normal};
+
+  ${media.md} {
+    font-size: ${({ theme }) => theme.fontSizes.base};
+    line-height: ${({ theme }) => theme.lineHeights.relaxed};
+  }
 `;
 
 export const Nav = styled.nav`
   display: flex;
   gap: ${({ theme }) => theme.space[2]};
-  flex-wrap: wrap;
-  justify-content: flex-end;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  ${media.lg} {
+    justify-content: flex-end;
+    overflow: visible;
+  }
 `;
 
 export const NavLink = styled(Link)<{ $active?: boolean }>`
   ${pillButton}
+  flex: 0 0 auto;
   border: 1px solid rgba(255, 255, 255, 0.34);
   background: ${({ $active }) =>
     $active ? "rgba(255, 255, 255, 0.26)" : "rgba(255, 255, 255, 0.14)"};
@@ -99,8 +116,9 @@ export const NavLink = styled(Link)<{ $active?: boolean }>`
 
 export const LogoutButton = styled.button`
   ${pillButton}
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  background: rgba(255, 255, 255, 0.14);
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 221, 221, 0.28);
+  background: rgba(179, 54, 82, 0.88);
   color: #fff;
   cursor: pointer;
   backdrop-filter: blur(6px);
@@ -109,10 +127,14 @@ export const LogoutButton = styled.button`
 export const ContentCard = styled.section`
   display: grid;
   gap: ${({ theme }) => theme.space[4]};
-  padding: ${({ theme }) => theme.space[4]};
+  padding: ${({ theme }) => theme.space[3]};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.88);
   box-shadow: 0 24px 56px -34px rgba(110, 36, 57, 0.24);
   backdrop-filter: blur(6px);
+
+  ${media.md} {
+    padding: ${({ theme }) => theme.space[4]};
+  }
 `;

@@ -45,7 +45,7 @@ export const Shell = styled.div`
   width: 100%;
   max-width: 100%;
 
-  ${media.lg} {
+  ${media.xl} {
     grid-template-columns: minmax(0, 1fr) 360px;
     align-items: start;
   }
@@ -67,7 +67,7 @@ export const MainColumn = styled.div`
 export const Aside = styled.aside`
   min-width: 0;
 
-  ${media.lg} {
+  ${media.xl} {
     position: sticky;
     top: 24px;
   }
@@ -135,7 +135,7 @@ export const Grid = styled.div`
   gap: 16px;
   margin-top: 24px;
 
-  ${media.md} {
+  ${media.lg} {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
@@ -144,7 +144,7 @@ export const FullWidth = styled.div`
   display: grid;
   gap: 8px;
 
-  ${media.md} {
+  ${media.lg} {
     grid-column: 1 / -1;
   }
 `;
@@ -214,7 +214,7 @@ export const RadioGrid = styled.div`
   display: grid;
   gap: 12px;
 
-  ${media.md} {
+  ${media.lg} {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 `;
@@ -278,7 +278,7 @@ export const CepRow = styled.div`
   display: grid;
   gap: 8px;
 
-  ${media.md} {
+  ${media.lg} {
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
   }
@@ -314,6 +314,7 @@ export const SummaryCard = styled.div`
   display: grid;
   gap: 20px;
   padding: 24px;
+  min-width: 0;
 `;
 
 export const SummaryBadge = styled.div`
