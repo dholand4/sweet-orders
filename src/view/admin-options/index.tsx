@@ -3,7 +3,7 @@
 import { AdminLayout } from "@/components/AdminLayout";
 import { OptionsManager } from "@/components/OptionsManager";
 import type { AdminOptionsSnapshot } from "@/services/options";
-import { Heading, Text, Title, Wrapper } from "./style";
+import { Eyebrow, Heading, Text, Title, Wrapper } from "./style";
 
 type AdminOptionsViewProps = {
   snapshot: AdminOptionsSnapshot;
@@ -12,15 +12,16 @@ type AdminOptionsViewProps = {
 export function AdminOptionsView({ snapshot }: AdminOptionsViewProps) {
   return (
     <AdminLayout
-      title="Catálogo e opções"
-      description="Gerencie produtos, tamanhos, sabores e coberturas sem apagar histórico."
+      title="Catalogo e opcoes"
+      description="Gerencie produtos, tamanhos, sabores e coberturas sem apagar historico."
     >
       <Wrapper>
         <Heading>
-          <Title>Configurações do catálogo</Title>
+          <Eyebrow>Painel da loja</Eyebrow>
+          <Title>Configuracoes do catalogo</Title>
           <Text>
-            Ative ou desative itens conforme a produção do dia e mantenha o
-            formulário do cliente sempre sincronizado com o admin.
+            Ative ou desative itens conforme a producao do dia e mantenha o
+            formulario da cliente sempre sincronizado com o admin.
           </Text>
         </Heading>
         <OptionsManager snapshot={snapshot} />

@@ -3,7 +3,7 @@
 import { AdminLayout } from "@/components/AdminLayout";
 import { OrdersTable } from "@/components/OrdersTable";
 import type { AdminOrder } from "@/@types/orders";
-import { Heading, Text, Title, Wrapper } from "./style";
+import { Eyebrow, Heading, Text, Title, Wrapper } from "./style";
 
 type AdminOrdersViewProps = {
   orders: AdminOrder[];
@@ -17,13 +17,14 @@ export function AdminOrdersView({
   return (
     <AdminLayout
       title="Pedidos recentes"
-      description="Acompanhe solicitações, confirme no WhatsApp e atualize o andamento com agilidade."
+      description="Acompanhe solicitacoes, confirme no WhatsApp e atualize o andamento com agilidade."
     >
       <Wrapper>
         <Heading>
+          <Eyebrow>Atendimento</Eyebrow>
           <Title>Central de pedidos</Title>
           <Text>
-            Filtre por status, revise os detalhes e conduza a confirmação manual
+            Filtre por status, revise os detalhes e conduza a confirmacao manual
             com mensagens prontas para o WhatsApp.
           </Text>
         </Heading>

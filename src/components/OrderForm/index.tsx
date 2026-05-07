@@ -111,6 +111,7 @@ const defaultValues: OrderFormValues = {
 export function OrderForm({ options }: OrderFormProps) {
   const router = useRouter();
   const [submitError, setSubmitError] = useState("");
+  const [cepError, setCepError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
   const [isLoadingCep, setIsLoadingCep] = useState(false);
@@ -148,15 +149,43 @@ export function OrderForm({ options }: OrderFormProps) {
   const doughTypeLabel =
     selectedDoughType === "massa_chocolate" ? "Massa de chocolate" : "Massa branca";
 
+  function formatCep(value: string) {
+    const digits = value.replace(/\D/g, "").slice(0, 8);
+
+    if (digits.length <= 5) {
+      return digits;
+    }
+
+    return `${digits.slice(0, 5)}-${digits.slice(5)}`;
+  }
+
+  function formatWhatsApp(value: string) {
+    const digits = value.replace(/\D/g, "").slice(0, 11);
+
+    if (digits.length <= 2) {
+      return digits ? `(${digits}` : "";
+    }
+
+    if (digits.length <= 7) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    }
+
+    if (digits.length <= 10) {
+      return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    }
+
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  }
+
   async function handleCepLookup() {
     const cep = getValues("cep").replace(/\D/g, "");
 
     if (cep.length !== 8) {
-      setSubmitError("Informe um CEP valido com 8 numeros.");
+      setCepError("Informe um CEP valido com 8 numeros.");
       return;
     }
 
-    setSubmitError("");
+    setCepError("");
     setIsLoadingCep(true);
 
     try {
@@ -176,7 +205,7 @@ export function OrderForm({ options }: OrderFormProps) {
       setValue("district", payload.bairro ?? "", { shouldValidate: true });
       setValue("city", payload.localidade ?? "", { shouldValidate: true });
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Falha ao buscar o CEP.");
+      setCepError(error instanceof Error ? error.message : "Falha ao buscar o CEP.");
     } finally {
       setIsLoadingCep(false);
     }
@@ -184,6 +213,7 @@ export function OrderForm({ options }: OrderFormProps) {
 
   async function onSubmit(values: OrderFormValues) {
     setSubmitError("");
+    setCepError("");
     setSuccessMessage("");
     setIsSubmittingForm(true);
 
@@ -269,7 +299,15 @@ export function OrderForm({ options }: OrderFormProps) {
                 <Input
                   id="whatsapp"
                   placeholder="(88) 99999-9999"
-                  {...register("whatsapp")}
+                  inputMode="numeric"
+                  maxLength={15}
+                  {...register("whatsapp", {
+                    onChange: (event) => {
+                      setValue("whatsapp", formatWhatsApp(event.target.value), {
+                        shouldValidate: true,
+                      });
+                    },
+                  })}
                 />
                 <FieldMessage>
                   {errors.whatsapp ? <ErrorText>{errors.whatsapp.message}</ErrorText> : null}
@@ -532,7 +570,20 @@ export function OrderForm({ options }: OrderFormProps) {
                 <FieldShell>
                   <Label htmlFor="cep">CEP</Label>
                   <CepRow>
-                    <Input id="cep" placeholder="00000-000" {...register("cep")} />
+                    <Input
+                      id="cep"
+                      placeholder="00000-000"
+                      inputMode="numeric"
+                      maxLength={9}
+                      {...register("cep", {
+                        onChange: (event) => {
+                          setCepError("");
+                          setValue("cep", formatCep(event.target.value), {
+                            shouldValidate: true,
+                          });
+                        },
+                      })}
+                    />
                     <SearchButton
                       type="button"
                       onClick={handleCepLookup}
@@ -541,6 +592,9 @@ export function OrderForm({ options }: OrderFormProps) {
                       {isLoadingCep ? "Buscando..." : "Buscar"}
                     </SearchButton>
                   </CepRow>
+                  <FieldMessage>
+                    {cepError ? <ErrorText>{cepError}</ErrorText> : null}
+                  </FieldMessage>
                 </FieldShell>
               </FullWidth>
 
