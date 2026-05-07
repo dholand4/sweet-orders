@@ -16,12 +16,8 @@ export async function getOrders(status?: string): Promise<AdminOrder[]> {
       delivery_date, delivery_time, cep,
       street, number, district, city, reference,
       dough_type, status, total_price, created_at,
-      product:products(id, name, type),
-      product_size:product_sizes(id, name, servings, price),
-      flavor_1:flavor_options!orders_flavor_1_id_fkey(id, name),
-      flavor_2:flavor_options!orders_flavor_2_id_fkey(id, name),
-      topping_1:flavor_options!orders_topping_1_id_fkey(id, name),
-      topping_2:flavor_options!orders_topping_2_id_fkey(id, name)
+      product_id, product_size_id,
+      flavor_1_id, flavor_2_id, topping_1_id, topping_2_id
     `)
     .order("created_at", { ascending: false });
 
@@ -29,21 +25,49 @@ export async function getOrders(status?: string): Promise<AdminOrder[]> {
     query = query.eq("status", status);
   }
 
-  const { data, error } = await query;
+  const { data: rows, error } = await query;
 
   if (error) {
-    throw new Error("Falha ao carregar pedidos.");
+    throw new Error(`Falha ao carregar pedidos: ${error.message}`);
   }
 
-  return (data ?? []).map((item) => ({
+  if (!rows || rows.length === 0) return [];
+
+  // Collect unique IDs for batch lookups
+  const productIds     = [...new Set(rows.map((r) => r.product_id).filter(Boolean))];
+  const sizeIds        = [...new Set(rows.map((r) => r.product_size_id).filter(Boolean))];
+  const flavorIds      = [...new Set([
+    ...rows.map((r) => r.flavor_1_id),
+    ...rows.map((r) => r.flavor_2_id),
+    ...rows.map((r) => r.topping_1_id),
+    ...rows.map((r) => r.topping_2_id),
+  ].filter(Boolean))];
+
+  const [products, sizes, flavors] = await Promise.all([
+    productIds.length
+      ? supabase.from("products").select("id, name, type").in("id", productIds)
+      : { data: [] },
+    sizeIds.length
+      ? supabase.from("product_sizes").select("id, name, servings, price").in("id", sizeIds)
+      : { data: [] },
+    flavorIds.length
+      ? supabase.from("flavor_options").select("id, name").in("id", flavorIds)
+      : { data: [] },
+  ]);
+
+  const pMap = Object.fromEntries((products.data ?? []).map((p) => [p.id, p]));
+  const sMap = Object.fromEntries((sizes.data ?? []).map((s) => [s.id, s]));
+  const fMap = Object.fromEntries((flavors.data ?? []).map((f) => [f.id, f]));
+
+  return rows.map((item) => ({
     ...item,
-    total_price: Number(item.total_price),
-    product:      unwrap(item.product),
-    product_size: unwrap(item.product_size),
-    flavor_1:     unwrap(item.flavor_1),
-    flavor_2:     unwrap(item.flavor_2),
-    topping_1:    unwrap(item.topping_1),
-    topping_2:    unwrap(item.topping_2),
+    total_price:  Number(item.total_price),
+    product:      item.product_id      ? pMap[item.product_id]      ?? null : null,
+    product_size: item.product_size_id ? sMap[item.product_size_id] ?? null : null,
+    flavor_1:     item.flavor_1_id     ? fMap[item.flavor_1_id]     ?? null : null,
+    flavor_2:     item.flavor_2_id     ? fMap[item.flavor_2_id]     ?? null : null,
+    topping_1:    item.topping_1_id    ? fMap[item.topping_1_id]    ?? null : null,
+    topping_2:    item.topping_2_id    ? fMap[item.topping_2_id]    ?? null : null,
   })) as AdminOrder[];
 }
 
