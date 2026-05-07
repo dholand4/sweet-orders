@@ -1,241 +1,306 @@
 import Link from "next/link";
-import styled, { css } from "styled-components";
-import { Container } from "@/components/Container/style";
-import { media } from "@/utils/media";
+import styled, { css, keyframes } from "styled-components";
 
-const pillButton = css`
-  display: inline-flex;
+const fadeIn = keyframes`
+  from { opacity: 0; }
+  to   { opacity: 1; }
+`;
+
+const slideIn = keyframes`
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+`;
+
+// ─── Shell (root layout) ────────────────────────────────────
+export const Shell = styled.div`
+  display: flex;
+  min-height: 100dvh;
+  background: ${({ theme }) => theme.colors.adminBg};
+`;
+
+// ─── Sidebar ────────────────────────────────────────────────
+export const Sidebar = styled.aside<{ $open: boolean }>`
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  width: 256px;
+  background: ${({ theme }) => theme.colors.adminSurface};
+  border-right: 1px solid ${({ theme }) => theme.colors.adminBorder};
+  padding: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: ${({ theme }) => theme.colors.adminBorder} transparent;
+  transition: transform ${({ theme }) => theme.transitions.slow};
+
+  @media (max-width: 1023px) {
+    transform: translateX(${({ $open }) => ($open ? "0" : "-100%")});
+    animation: ${({ $open }) => $open ? css`${slideIn} 0.28s ease` : "none"};
+  }
+
+  @media (min-width: 1024px) {
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    transform: none;
+    flex-shrink: 0;
+  }
+`;
+
+// ─── Sidebar brand ──────────────────────────────────────────
+export const SidebarBrand = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 28px 20px 20px;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.adminBorder};
+`;
+
+export const BrandIcon = styled.div`
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}, ${({ theme }) => theme.colors.primaryHover});
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
-  padding: 0 ${({ theme }) => theme.space[4]};
-  border-radius: 999px;
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: ${({ theme }) => theme.shadows.md};
-  }
+  font-size: 20px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(222, 127, 155, 0.35);
 `;
 
-export const Shell = styled.div`
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at top center, rgba(255, 255, 255, 0.34), transparent 24%),
-    linear-gradient(180deg, ${({ theme }) => theme.colors.bg} 0%, ${({ theme }) => theme.colors.bgSecondary} 100%);
-`;
-
-export const PageContainer = styled(Container)`
-  display: grid;
-  gap: ${({ theme }) => theme.space[4]};
-  padding-top: ${({ theme }) => theme.space[4]};
-  padding-bottom: ${({ theme }) => theme.space[5]};
-`;
-
-export const Topbar = styled.div`
-  position: relative;
-  overflow: hidden;
-  display: grid;
-  gap: ${({ theme }) => theme.space[4]};
-  padding: ${({ theme }) => theme.space[4]};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 32px;
-  background: #d9859c;
-  box-shadow: 0 24px 56px -28px rgba(110, 36, 57, 0.34);
-
-  @media (max-width: 767px) {
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
-    padding: ${({ theme }) => theme.space[3]};
-    border-radius: 24px;
-  }
-
-  ${media.lg} {
-    padding: ${({ theme }) => theme.space[5]};
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: start;
-  }
-`;
-
-export const Brand = styled.div`
-  display: grid;
-  gap: ${({ theme }) => theme.space[2]};
-
-  @media (max-width: 767px) {
-    display: none;
-  }
-`;
-
-export const MobileTitle = styled.span`
-  color: #fff;
-  font-family: var(--font-heading), serif;
-  font-size: ${({ theme }) => theme.fontSizes["2xl"]};
-  font-weight: ${({ theme }) => theme.fontWeights.bold};
-  line-height: ${({ theme }) => theme.lineHeights.tight};
-
-  ${media.md} {
-    display: none;
-  }
-`;
-
-export const MenuButton = styled.button`
-  ${pillButton}
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  background: rgba(255, 255, 255, 0.14);
-  color: #fff;
-  cursor: pointer;
-  justify-self: end;
-  backdrop-filter: blur(6px);
-
-  ${media.md} {
-    display: none;
-  }
-`;
-
-export const TitleWrap = styled.div`
-  display: grid;
-  gap: ${({ theme }) => theme.space[1]};
-`;
-
-export const Title = styled.h1`
-  margin: 0;
-  color: #fff;
-  font-family: var(--font-heading), serif;
-  font-size: clamp(1.9rem, 4vw + 0.9rem, 3.5rem);
-  line-height: 1.05;
-  text-shadow: 0 10px 24px rgba(110, 36, 57, 0.2);
-`;
-
-export const Description = styled.p`
-  max-width: 44rem;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.92);
-  font-size: ${({ theme }) => theme.fontSizes.sm};
-  line-height: ${({ theme }) => theme.lineHeights.normal};
-
-  ${media.md} {
-    font-size: ${({ theme }) => theme.fontSizes.base};
-    line-height: ${({ theme }) => theme.lineHeights.relaxed};
-  }
-`;
-
-export const Nav = styled.nav<{ $open?: boolean }>`
+export const BrandText = styled.div`
   display: flex;
-  gap: ${({ theme }) => theme.space[2]};
-
-  @media (max-width: 767px) {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 80;
-    width: min(82vw, 320px);
-    padding: ${({ theme }) => theme.space[4]};
-    flex-direction: column;
-    justify-content: flex-start;
-    border-left: 1px solid rgba(255, 255, 255, 0.32);
-    background:
-      linear-gradient(180deg, rgba(255, 245, 248, 0.98), rgba(246, 206, 218, 0.98)),
-      ${({ theme }) => theme.colors.surface};
-    box-shadow: -18px 0 42px -24px rgba(58, 29, 42, 0.38);
-    transform: translateX(${({ $open }) => ($open ? "0" : "108%")});
-    transition: transform 0.28s ease;
-  }
-
-  ${media.md} {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    overflow-x: auto;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-
-  ${media.lg} {
-    justify-content: flex-end;
-    overflow: visible;
-  }
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
 `;
 
-export const DrawerBackdrop = styled.button`
-  position: fixed;
-  inset: 0;
-  z-index: 70;
-  border: 0;
-  background: rgba(78, 43, 57, 0.48);
-
-  ${media.md} {
-    display: none;
-  }
+export const BrandName = styled.span`
+  font-family: var(--font-heading), serif;
+  font-size: ${({ theme }) => theme.fontSizes.base};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.adminText};
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 `;
 
-export const DrawerCloseButton = styled.button`
-  ${pillButton}
-  align-self: flex-end;
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  background: rgba(255, 255, 255, 0.84);
-  color: ${({ theme }) => theme.colors.wine};
-  cursor: pointer;
+export const BrandSub = styled.span`
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  color: ${({ theme }) => theme.colors.adminTextMuted};
+  white-space: nowrap;
+`;
 
-  ${media.md} {
-    display: none;
-  }
+// ─── Nav ────────────────────────────────────────────────────
+export const Nav = styled.nav`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 16px 12px;
+  flex: 1;
+`;
+
+export const NavSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+`;
+
+export const NavSectionLabel = styled.span`
+  font-size: 0.6875rem;
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.colors.adminTextMuted};
+  padding: 8px 8px 4px;
 `;
 
 export const NavLink = styled(Link)<{ $active?: boolean }>`
-  ${pillButton}
-  flex: 0 0 auto;
-  border: 1px solid rgba(255, 255, 255, 0.34);
-  background: ${({ $active }) =>
-    $active ? "rgba(255, 255, 255, 0.26)" : "rgba(255, 255, 255, 0.14)"};
-  color: #fff;
-  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  font-weight: ${({ $active, theme }) =>
+    $active ? theme.fontWeights.semibold : theme.fontWeights.normal};
+  color: ${({ $active, theme }) =>
+    $active ? theme.colors.adminActiveText : theme.colors.adminTextMuted};
+  background: ${({ $active, theme }) =>
+    $active ? theme.colors.adminActive : "transparent"};
+  border: 1px solid ${({ $active, theme }) =>
+    $active ? theme.colors.adminBorderHover : "transparent"};
+  transition: all ${({ theme }) => theme.transitions.fast};
+  cursor: pointer;
+  text-decoration: none;
 
-  @media (max-width: 767px) {
-    width: 100%;
-    justify-content: center;
-    border-color: ${({ theme }) => theme.colors.border};
-    background: ${({ $active, theme }) =>
-      $active
-        ? `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.primaryHover})`
-        : "rgba(255, 255, 255, 0.88)"};
-    color: ${({ $active, theme }) => ($active ? theme.colors.surface : theme.colors.wine)};
-    backdrop-filter: none;
+  &:hover {
+    background: ${({ theme }) => theme.colors.adminSurfaceHover};
+    color: ${({ theme }) => theme.colors.adminText};
+    border-color: ${({ theme }) => theme.colors.adminBorder};
   }
+`;
+
+export const NavIcon = styled.span`
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+`;
+
+// ─── Sidebar footer ─────────────────────────────────────────
+export const SidebarFooter = styled.div`
+  padding: 12px;
+  border-top: 1px solid ${({ theme }) => theme.colors.adminBorder};
 `;
 
 export const LogoutButton = styled.button`
-  ${pillButton}
-  flex: 0 0 auto;
-  border: 1px solid rgba(255, 221, 221, 0.28);
-  background: rgba(179, 54, 82, 0.88);
-  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: ${({ theme }) => theme.radii.md};
+  font-size: ${({ theme }) => theme.fontSizes.sm};
+  color: rgba(239, 68, 68, 0.8);
+  background: transparent;
+  border: 1px solid transparent;
   cursor: pointer;
-  backdrop-filter: blur(6px);
+  transition: all ${({ theme }) => theme.transitions.fast};
+  text-align: left;
 
-  @media (max-width: 767px) {
-    width: 100%;
-    background: linear-gradient(135deg, #cf4d66, #aa2944);
-    border-color: rgba(170, 41, 68, 0.18);
-    backdrop-filter: none;
+  &:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border-color: rgba(239, 68, 68, 0.2);
   }
 `;
 
-export const ContentCard = styled.section`
-  display: grid;
-  gap: ${({ theme }) => theme.space[4]};
-  padding: ${({ theme }) => theme.space[3]};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.88);
-  box-shadow: 0 24px 56px -34px rgba(110, 36, 57, 0.24);
-  backdrop-filter: blur(6px);
+// ─── Backdrop ───────────────────────────────────────────────
+export const Backdrop = styled.button`
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  border: 0;
+  animation: ${fadeIn} 0.2s ease;
+  cursor: default;
 
-  ${media.md} {
-    padding: ${({ theme }) => theme.space[4]};
+  @media (min-width: 1024px) {
+    display: none;
+  }
+`;
+
+// ─── Main area ──────────────────────────────────────────────
+export const Main = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 100dvh;
+  background: ${({ theme }) => theme.colors.bg};
+`;
+
+// ─── Topbar ─────────────────────────────────────────────────
+export const Topbar = styled.header`
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  height: 60px;
+  background: rgba(253, 241, 244, 0.92);
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  backdrop-filter: blur(8px);
+
+  @media (min-width: 1024px) {
+    padding: 0 32px;
+  }
+`;
+
+export const HamburgerButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: ${({ theme }) => theme.radii.md};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  cursor: pointer;
+  font-size: 18px;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  flex-shrink: 0;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.primarySoft};
+    border-color: ${({ theme }) => theme.colors.primary};
+  }
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+`;
+
+export const PageTitle = styled.h1`
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-heading), serif;
+  font-size: ${({ theme }) => theme.fontSizes.xl};
+  font-weight: ${({ theme }) => theme.fontWeights.bold};
+  color: ${({ theme }) => theme.colors.text};
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;
+
+export const TopbarActions = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+`;
+
+export const StoreBadge = styled.a`
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: ${({ theme }) => theme.radii.full};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  background: ${({ theme }) => theme.colors.surface};
+  color: ${({ theme }) => theme.colors.text};
+  font-size: ${({ theme }) => theme.fontSizes.xs};
+  font-weight: ${({ theme }) => theme.fontWeights.medium};
+  text-decoration: none;
+  transition: all ${({ theme }) => theme.transitions.fast};
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.primarySoft};
+    border-color: ${({ theme }) => theme.colors.primary};
+  }
+
+  @media (min-width: 640px) {
+    display: flex;
+  }
+`;
+
+// ─── Content ────────────────────────────────────────────────
+export const Content = styled.main`
+  flex: 1;
+  padding: 24px 20px;
+
+  @media (min-width: 1024px) {
+    padding: 32px;
   }
 `;

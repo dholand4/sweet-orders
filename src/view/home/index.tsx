@@ -2,13 +2,12 @@
 
 import { Logo } from "@/components/Logo";
 import { OrderForm } from "@/components/OrderForm";
-import type { PublicOptionsSnapshot } from "@/services/options";
+import type { PublicCatalog } from "@/services/options";
 import {
   AdminLink,
   ContentWrap,
   Footer,
   Hero,
-  HeroBadge,
   HeroContainer,
   HeroContent,
   HeroGlow,
@@ -21,10 +20,10 @@ import {
 } from "./style";
 
 type HomeViewProps = {
-  options: PublicOptionsSnapshot;
+  catalog: PublicCatalog;
 };
 
-export function HomeView({ options }: HomeViewProps) {
+export function HomeView({ catalog }: HomeViewProps) {
   return (
     <PageShell>
       <Hero>
@@ -41,18 +40,17 @@ export function HomeView({ options }: HomeViewProps) {
                 <Logo size={168} priority />
               </HeroLogoFrame>
             </HeroLogoWrap>
-            {/* <HeroBadge>Confeitaria artesanal</HeroBadge> */}
             <HeroTitle>Dany Ruivo</HeroTitle>
             <HeroSubtitle>
               Monte seu pedido em poucos passos. Bolos e tortas feitos com carinho,
-              do seu jeito, com confirmacao final diretamente no WhatsApp.
+              do seu jeito, com confirmação final diretamente no WhatsApp.
             </HeroSubtitle>
           </HeroContent>
         </HeroContainer>
       </Hero>
 
       <ContentWrap>
-        <OrderForm options={options} />
+        <OrderForm catalog={catalog} />
       </ContentWrap>
 
       <Footer>Feito com carinho para adoçar os seus pedidos.</Footer>

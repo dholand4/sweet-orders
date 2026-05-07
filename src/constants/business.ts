@@ -3,14 +3,27 @@ export const STORE_WHATSAPP =
   process.env.NEXT_PUBLIC_STORE_WHATSAPP ?? "5588999792427";
 
 export const ORDER_STATUS_OPTIONS = [
-  { value: "novo", label: "Novo" },
-  { value: "confirmado", label: "Confirmado" },
-  { value: "finalizado", label: "Finalizado" },
-  { value: "cancelado", label: "Cancelado" },
+  { value: "novo",       label: "Novo",       color: "#3b82f6" },
+  { value: "confirmado", label: "Confirmado", color: "#f59e0b" },
+  { value: "finalizado", label: "Finalizado", color: "#10b981" },
+  { value: "cancelado",  label: "Cancelado",  color: "#ef4444" },
 ] as const;
+
+export const PRODUCT_TYPE_LABELS: Record<string, string> = {
+  bolo:  "Bolo",
+  torta: "Torta",
+  outro: "Outro",
+};
+
+export const FLAVOR_TYPE_LABELS: Record<string, string> = {
+  recheio:  "Recheio",
+  cobertura: "Cobertura",
+  ambos:     "Recheio e Cobertura",
+};
 
 export const BUSINESS_NOTES = [
   "Taxa de entrega de R$5,00 para bairros distantes.",
-  "Tema com papel fotografico R$5,00.",
-  "Tema em 3D valor a combinar.",
+  "Tema com papel fotográfico: R$5,00 a mais.",
+  "Tema em 3D: valor a combinar.",
+  "Pedidos com prazo mínimo de 3 dias úteis.",
 ];

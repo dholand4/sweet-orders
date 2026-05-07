@@ -3,7 +3,6 @@ import type { AdminOrder } from "@/@types/orders";
 
 export function formatCurrencyBRL(value: number | string | null | undefined) {
   const numericValue = Number(value ?? 0);
-
   return new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL",
@@ -22,15 +21,8 @@ export function formatTimeBR(time: string) {
 
 export function normalizeWhatsApp(value: string) {
   const digits = value.replace(/\D/g, "");
-
-  if (digits.startsWith("55")) {
-    return digits;
-  }
-
-  if (digits.length === 10 || digits.length === 11) {
-    return `55${digits}`;
-  }
-
+  if (digits.startsWith("55")) return digits;
+  if (digits.length === 10 || digits.length === 11) return `55${digits}`;
   return digits;
 }
 
@@ -42,35 +34,49 @@ export function buildStoreWhatsAppLink(message: string) {
   return buildWhatsAppLink(STORE_WHATSAPP, message);
 }
 
+function getFlavorsLine(order: AdminOrder): string {
+  const parts = [order.flavor_1?.name, order.flavor_2?.name].filter(Boolean);
+  return parts.length ? parts.join(" + ") : "-";
+}
+
+function getToppingsLine(order: AdminOrder): string {
+  const parts = [order.topping_1?.name, order.topping_2?.name].filter(Boolean);
+  return parts.length ? parts.join(" + ") : "-";
+}
+
+function getDoughLabel(order: AdminOrder): string {
+  if (!order.dough_type) return "";
+  return order.dough_type === "massa_chocolate" ? "Massa de chocolate" : "Massa branca";
+}
+
 export function buildOrderSummary(order: AdminOrder) {
-  return [
-    `Produto: ${order.product_type?.name ?? "-"}`,
+  const lines = [
+    `Produto: ${order.product?.name ?? "-"}`,
     `Tamanho: ${order.product_size?.name ?? "-"}`,
-    `Sabor: ${order.flavor?.name ?? "-"}`,
-    `Recheio: ${order.filling?.name ?? "-"}`,
-    `Cobertura/estilo: ${order.topping?.name ?? "-"}`,
-    `Tema: ${order.theme || "-"}`,
-    `Data: ${formatDateBR(order.delivery_date)}`,
-    `Hora: ${formatTimeBR(order.delivery_time)}`,
-    `Endereço: ${order.street}, ${order.number}, ${order.district}, ${order.city}`,
+    `Sabor/Recheio: ${getFlavorsLine(order)}`,
+    `Cobertura: ${getToppingsLine(order)}`,
+  ];
+
+  const dough = getDoughLabel(order);
+  if (dough) lines.push(`Massa: ${dough}`);
+
+  if (order.theme) lines.push(`Tema: ${order.theme}`);
+  if (order.notes) lines.push(`Obs: ${order.notes}`);
+
+  lines.push(
+    `Entrega: ${formatDateBR(order.delivery_date)} às ${formatTimeBR(order.delivery_time)}`,
+    `Endereço: ${order.street}, ${order.number} - ${order.district}, ${order.city}`,
     `Valor: ${formatCurrencyBRL(order.total_price)}`,
-  ].join("\n");
+  );
+
+  return lines.join("\n");
 }
 
 export function buildConfirmOrderMessage(order: AdminOrder) {
   return `Olá, ${order.customer_name}! Recebemos seu pedido na Dany Ruivo Bolos e Tortas.
 
 Resumo:
-Produto: ${order.product_type?.name ?? "-"}
-Tamanho: ${order.product_size?.name ?? "-"}
-Sabor: ${order.flavor?.name ?? "-"}
-Recheio: ${order.filling?.name ?? "-"}
-Cobertura/estilo: ${order.topping?.name ?? "-"}
-Tema: ${order.theme || "-"}
-Data: ${formatDateBR(order.delivery_date)}
-Hora: ${formatTimeBR(order.delivery_time)}
-Endereço: ${order.street}, ${order.number}, ${order.district}, ${order.city}
-Valor: ${formatCurrencyBRL(order.total_price)}
+${buildOrderSummary(order)}
 
 Podemos confirmar seu pedido?`;
 }
