@@ -58,16 +58,13 @@ export const SidebarBrand = styled.div`
 `;
 
 export const BrandIcon = styled.div`
-  width: 40px;
-  height: 40px;
+  position: relative;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
-  background: linear-gradient(135deg, ${({ theme }) => theme.colors.primary}, ${({ theme }) => theme.colors.primaryHover});
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
+  overflow: hidden;
   flex-shrink: 0;
-  box-shadow: 0 4px 12px rgba(222, 127, 155, 0.35);
+  box-shadow: 0 4px 12px rgba(222, 127, 155, 0.30);
 `;
 
 export const BrandText = styled.div`

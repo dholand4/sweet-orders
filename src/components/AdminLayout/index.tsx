@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
+import logoImg from "@/assets/logotipo.png";
 import {
   Backdrop,
   BrandIcon,
@@ -52,7 +54,15 @@ export function AdminLayout({ title, children }: AdminLayoutProps) {
     <Shell>
       <Sidebar $open={open}>
         <SidebarBrand>
-          <BrandIcon>🎂</BrandIcon>
+          <BrandIcon>
+              <Image
+                src={logoImg}
+                alt="Dany Ruivo"
+                fill
+                style={{ objectFit: "contain" }}
+                sizes="44px"
+              />
+            </BrandIcon>
           <BrandText>
             <BrandName>Dany Ruivo</BrandName>
             <BrandSub>Bolos e Tortas</BrandSub>

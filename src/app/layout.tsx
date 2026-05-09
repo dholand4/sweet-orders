@@ -19,6 +19,11 @@ const bodyFont = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "Dany Ruivo | Bolos e Tortas",
   description: "Sistema de pedidos online para Dany Ruivo - Bolos e Tortas.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+    shortcut: "/logo.png",
+  },
 };
 
 type RootLayoutProps = Readonly<{
