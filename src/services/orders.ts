@@ -84,13 +84,11 @@ export async function getOrderStats() {
     { count: novo },
     { count: confirmado },
     { data: revenue },
-    { count: today_count },
   ] = await Promise.all([
-    supabase.from("orders").select("*", { count: "exact", head: true }),
-    supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "novo"),
-    supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "confirmado"),
-    supabase.from("orders").select("total_price").in("status", ["confirmado", "finalizado"]),
     supabase.from("orders").select("*", { count: "exact", head: true }).eq("delivery_date", today),
+    supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "novo").eq("delivery_date", today),
+    supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "confirmado").eq("delivery_date", today),
+    supabase.from("orders").select("total_price").in("status", ["confirmado", "finalizado"]).eq("delivery_date", today),
   ]);
 
   const totalRevenue = (revenue ?? []).reduce((sum, o) => sum + Number(o.total_price), 0);
@@ -100,6 +98,5 @@ export async function getOrderStats() {
     novo:        novo ?? 0,
     confirmado:  confirmado ?? 0,
     totalRevenue,
-    todayOrders: today_count ?? 0,
   };
 }

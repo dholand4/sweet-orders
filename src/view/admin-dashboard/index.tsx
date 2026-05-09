@@ -229,7 +229,6 @@ type DashboardViewProps = {
     novo: number;
     confirmado: number;
     totalRevenue: number;
-    todayOrders: number;
   };
   recentOrders: AdminOrder[];
 };
@@ -240,34 +239,34 @@ export function DashboardView({ stats, recentOrders }: DashboardViewProps) {
       <StatsGrid>
         <StatCard $color="#3b82f6" $delay={0}>
           <StatHeader>
-            <StatLabel>Total de pedidos</StatLabel>
+            <StatLabel>Pedidos hoje</StatLabel>
             <StatIcon $bg="rgba(59,130,246,0.12)">📋</StatIcon>
           </StatHeader>
           <StatValue>{stats.total}</StatValue>
-          <StatSub>{stats.todayOrders} para hoje</StatSub>
+          <StatSub>entregas do dia</StatSub>
         </StatCard>
 
         <StatCard $color="#f59e0b" $delay={60}>
           <StatHeader>
-            <StatLabel>Aguardando</StatLabel>
+            <StatLabel>Aguardando hoje</StatLabel>
             <StatIcon $bg="rgba(245,158,11,0.12)">⏳</StatIcon>
           </StatHeader>
           <StatValue>{stats.novo}</StatValue>
-          <StatSub>pedidos novos</StatSub>
+          <StatSub>ainda não confirmados</StatSub>
         </StatCard>
 
         <StatCard $color="#10b981" $delay={120}>
           <StatHeader>
-            <StatLabel>Confirmados</StatLabel>
+            <StatLabel>Confirmados hoje</StatLabel>
             <StatIcon $bg="rgba(16,185,129,0.12)">✅</StatIcon>
           </StatHeader>
           <StatValue>{stats.confirmado}</StatValue>
-          <StatSub>em andamento</StatSub>
+          <StatSub>prontos para entrega</StatSub>
         </StatCard>
 
         <StatCard $color="#de7f9b" $delay={180}>
           <StatHeader>
-            <StatLabel>Receita total</StatLabel>
+            <StatLabel>Receita hoje</StatLabel>
             <StatIcon $bg="rgba(222,127,155,0.14)">💰</StatIcon>
           </StatHeader>
           <StatValue style={{ fontSize: "1.5rem" }}>{formatCurrencyBRL(stats.totalRevenue)}</StatValue>
