@@ -34,6 +34,7 @@ const NAV_ITEMS = [
   { href: "/admin/produtos",   icon: "🎂", label: "Produtos" },
   { href: "/admin/sabores",    icon: "🍰", label: "Sabores" },
   { href: "/admin/relatorios", icon: "📊", label: "Relatórios" },
+  { href: "/admin/configuracoes", icon: "⚙", label: "Configurações" },
 ];
 
 export function AdminLayout({ title, children }: AdminLayoutProps) {

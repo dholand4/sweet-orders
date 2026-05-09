@@ -174,3 +174,14 @@ CREATE INDEX idx_product_sizes_pid           ON product_sizes(product_id);
 CREATE INDEX idx_product_flavors_pid         ON product_flavors(product_id);
 CREATE INDEX idx_product_toppings_pid        ON product_toppings(product_id);
 CREATE INDEX idx_product_deco_styles_pid     ON product_decoration_styles(product_id);
+
+-- ============================================================
+-- CONFIGURAÇÕES DA LOJA
+-- ============================================================
+CREATE TABLE store_settings (
+  id         uuid        DEFAULT gen_random_uuid() PRIMARY KEY,
+  whatsapp   text        NOT NULL DEFAULT '',
+  store_name text        NOT NULL DEFAULT 'Dany Ruivo - Bolos e Tortas',
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE store_settings DISABLE ROW LEVEL SECURITY;

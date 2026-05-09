@@ -21,9 +21,10 @@ import {
 
 type HomeViewProps = {
   catalog: PublicCatalog;
+  storeWhatsapp: string;
 };
 
-export function HomeView({ catalog }: HomeViewProps) {
+export function HomeView({ catalog, storeWhatsapp }: HomeViewProps) {
   return (
     <PageShell>
       <Hero>
@@ -50,7 +51,7 @@ export function HomeView({ catalog }: HomeViewProps) {
       </Hero>
 
       <ContentWrap>
-        <OrderForm catalog={catalog} />
+        <OrderForm catalog={catalog} storeWhatsapp={storeWhatsapp} />
       </ContentWrap>
 
       <Footer>Feito com carinho para adoçar os seus pedidos.</Footer>

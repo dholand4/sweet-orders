@@ -161,6 +161,11 @@ export type Database = {
         Insert: { id?: string; product_id: string; decoration_style_id: string };
         Update: { id?: string; product_id?: string; decoration_style_id?: string };
       };
+      store_settings: {
+        Row:    { id: string; whatsapp: string; store_name: string; updated_at: string };
+        Insert: { id?: string; whatsapp: string; store_name?: string; updated_at?: string };
+        Update: { id?: string; whatsapp?: string; store_name?: string; updated_at?: string };
+      };
       orders: {
         Row: {
           id: string;

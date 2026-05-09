@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BUSINESS_NOTES } from "@/constants/business";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
-import { buildStoreWhatsAppLink, formatCurrencyBRL } from "@/utils/format";
+import { buildWhatsAppLink, formatCurrencyBRL } from "@/utils/format";
 import { orderFormSchema } from "@/utils/validations";
 import {
   Aside,
@@ -109,7 +109,7 @@ const defaultValues: OrderFormValues = {
   wantsTheme: "nao",
 };
 
-export function OrderForm({ catalog }: OrderFormProps) {
+export function OrderForm({ catalog, storeWhatsapp }: OrderFormProps) {
   const router = useRouter();
   const [submitError,      setSubmitError]      = useState("");
   const [cepError,         setCepError]         = useState("");
@@ -714,7 +714,8 @@ export function OrderForm({ catalog }: OrderFormProps) {
               <FeedbackCard>
                 <FeedbackText>{successMessage}</FeedbackText>
                 <WhatsAppButton
-                  href={buildStoreWhatsAppLink(
+                  href={buildWhatsAppLink(
+                    storeWhatsapp,
                     "Olá! Acabei de enviar meu pedido pelo site da Dany Ruivo e gostaria de acompanhar a confirmação.",
                   )}
                   label="Chamar a loja no WhatsApp"
