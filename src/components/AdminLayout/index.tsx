@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import logoImg from "@/assets/logotipo.png";
+import { AdminProgressBar } from "@/components/AdminProgressBar";
 import {
   Backdrop,
   BrandIcon,
@@ -53,6 +54,7 @@ export function AdminLayout({ title, children }: AdminLayoutProps) {
 
   return (
     <Shell>
+      <AdminProgressBar />
       <Sidebar $open={open}>
         <SidebarBrand>
           <BrandIcon>
