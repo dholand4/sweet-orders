@@ -29,10 +29,11 @@ import {
 import type { AdminLayoutProps } from "./types";
 
 const NAV_ITEMS = [
-  { href: "/admin/dashboard", icon: "◈", label: "Dashboard" },
-  { href: "/admin/pedidos",   icon: "📋", label: "Pedidos" },
-  { href: "/admin/produtos",  icon: "🎂", label: "Produtos" },
-  { href: "/admin/sabores",   icon: "🍰", label: "Sabores" },
+  { href: "/admin/dashboard",  icon: "◈",  label: "Dashboard" },
+  { href: "/admin/pedidos",    icon: "📋", label: "Pedidos" },
+  { href: "/admin/produtos",   icon: "🎂", label: "Produtos" },
+  { href: "/admin/sabores",    icon: "🍰", label: "Sabores" },
+  { href: "/admin/relatorios", icon: "📊", label: "Relatórios" },
 ];
 
 export function AdminLayout({ title, children }: AdminLayoutProps) {
