@@ -1,19 +1,19 @@
 import { AdminLayout } from "@/components/AdminLayout";
-import { FlavorsView } from "@/view/admin-flavors";
+import { TemasView } from "@/view/admin-temas";
 import { createSupabaseServerClient } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
-export default async function SaboresPage() {
+export default async function TemasPage() {
   const supabase = createSupabaseServerClient();
-  const { data: flavors } = await supabase
-    .from("flavor_options")
+  const { data: decoStyles } = await supabase
+    .from("decoration_styles")
     .select("*")
     .order("sort_order");
 
   return (
-    <AdminLayout title="Sabores & Recheios">
-      <FlavorsView flavors={flavors ?? []} />
+    <AdminLayout title="Estilos de Tema">
+      <TemasView decoStyles={decoStyles ?? []} />
     </AdminLayout>
   );
 }

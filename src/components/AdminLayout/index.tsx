@@ -35,6 +35,7 @@ const NAV_ITEMS = [
   { href: "/admin/pedidos",    icon: "📋", label: "Pedidos" },
   { href: "/admin/produtos",   icon: "🎂", label: "Produtos" },
   { href: "/admin/sabores",    icon: "🍰", label: "Sabores" },
+  { href: "/admin/temas",      icon: "🎨", label: "Temas" },
   { href: "/admin/relatorios", icon: "📊", label: "Relatórios" },
   { href: "/admin/configuracoes", icon: "⚙", label: "Configurações" },
 ];
