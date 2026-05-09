@@ -41,9 +41,14 @@ const NAV_ITEMS = [
   { href: "/admin/configuracoes", icon: "⚙", label: "Configurações" },
 ];
 
-export function AdminLayout({ title, children }: AdminLayoutProps) {
+export function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const title =
+    NAV_ITEMS.find(
+      (item) => pathname === item.href || pathname.startsWith(item.href + "/"),
+    )?.label ?? "Admin";
   const [open, setOpen] = useState(false);
 
   async function handleLogout() {

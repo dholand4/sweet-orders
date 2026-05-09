@@ -1,4 +1,3 @@
-import { AdminLayout } from "@/components/AdminLayout";
 import { FlavorsView } from "@/view/admin-flavors";
 import { createSupabaseServerClient } from "@/lib/supabase";
 
@@ -11,9 +10,5 @@ export default async function SaboresPage() {
     .select("*")
     .order("sort_order");
 
-  return (
-    <AdminLayout title="Sabores & Recheios">
-      <FlavorsView flavors={flavors ?? []} />
-    </AdminLayout>
-  );
+  return <FlavorsView flavors={flavors ?? []} />;
 }

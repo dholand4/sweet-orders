@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { requireAdminAuth } from "@/lib/auth";
+import { AdminLayout } from "@/components/AdminLayout";
 
 type ProtectedAdminLayoutProps = Readonly<{
   children: ReactNode;
@@ -10,5 +11,5 @@ export default async function ProtectedAdminLayout({
 }: ProtectedAdminLayoutProps) {
   await requireAdminAuth();
 
-  return children;
+  return <AdminLayout>{children}</AdminLayout>;
 }

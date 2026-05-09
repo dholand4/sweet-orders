@@ -1,4 +1,3 @@
-import { AdminLayout } from "@/components/AdminLayout";
 import { TemasView } from "@/view/admin-temas";
 import { createSupabaseServerClient } from "@/lib/supabase";
 
@@ -11,9 +10,5 @@ export default async function TemasPage() {
     .select("*")
     .order("sort_order");
 
-  return (
-    <AdminLayout title="Estilos de Tema">
-      <TemasView decoStyles={decoStyles ?? []} />
-    </AdminLayout>
-  );
+  return <TemasView decoStyles={decoStyles ?? []} />;
 }

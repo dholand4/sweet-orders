@@ -1,4 +1,3 @@
-import { AdminLayout } from "@/components/AdminLayout";
 import { DashboardView } from "@/view/admin-dashboard";
 import { getOrderStats, getOrders } from "@/services/orders";
 
@@ -12,9 +11,5 @@ export default async function DashboardPage() {
 
   const recent = recentOrders.slice(0, 8);
 
-  return (
-    <AdminLayout title="Dashboard">
-      <DashboardView stats={stats} recentOrders={recent} />
-    </AdminLayout>
-  );
+  return <DashboardView stats={stats} recentOrders={recent} />;
 }
