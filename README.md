@@ -25,13 +25,13 @@
 
 ---
 
-## 🤔 Sobre
+## Sobre
 
 O **sweet-orders** é um sistema de pedidos online para confeitarias. O cliente acessa a página pública, monta o pedido escolhendo tipo de produto, tamanho, sabor, recheio e cobertura, informa os dados de entrega e envia. O pedido aparece instantaneamente no painel admin, onde a recepcionista pode acompanhar o status e confirmar pelo WhatsApp com mensagem já formatada — sem precisar digitar nada.
 
 ---
 
-## ✅ Funcionalidades
+## Funcionalidades
 
 **Página pública**
 - 🎂 Formulário de pedido com seleção dinâmica por tipo de produto
@@ -50,7 +50,7 @@ O **sweet-orders** é um sistema de pedidos online para confeitarias. O cliente 
 
 ---
 
-## 🏗️ Arquitetura
+## Arquitetura
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -96,7 +96,7 @@ public/
 
 ---
 
-## 💻 Tecnologias
+## Tecnologias
 
 | Tecnologia | Uso |
 |---|---|
@@ -109,7 +109,7 @@ public/
 
 ---
 
-## 🚀 Como rodar
+## Como rodar
 
 ### Pré-requisitos
 
@@ -141,7 +141,7 @@ Acesse:
 
 ---
 
-## 🗄️ Banco de dados
+## Banco de dados
 
 1. Acesse o painel do [Supabase](https://supabase.com)
 2. Abra o **SQL Editor**
